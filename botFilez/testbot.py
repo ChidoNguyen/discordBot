@@ -1,4 +1,5 @@
 import discord
+import discordCreds as creds
 
 client =  discord.Client()
 
@@ -13,4 +14,4 @@ async def on_message(message):
 	if message.content.startswith('$hello'):
 		await message.channel.send('Hello!')
 
-client.run('Nzg4NjE3NTYwNDg4MjgwMTI1.X9mHVg.YyYxEXFofB5EKdaWh2vITWsKdLc')
+client.run(creds.Discord)
