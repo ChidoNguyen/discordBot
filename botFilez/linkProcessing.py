@@ -15,7 +15,6 @@ def lp(driver):
     try:
         wait = WebDriverWait(driver,10)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")))
-        driver.alert()
     except NoSuchElementException:
         print("failed download")
 
