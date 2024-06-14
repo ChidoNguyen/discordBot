@@ -8,14 +8,19 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException , NoSuchElementException   
+
 
 import time
+
+import linkProcessing as downProc
+
 from discordCreds import siteURL , userID , userPASS
 
 
 driver = webdriver.Chrome()
 driver.get(siteURL) #fill with our url
+driver.implicitly_wait(10)
 
 try:
     assert "Z-Library" in driver.title
@@ -37,21 +42,30 @@ passwordEntry = login_form.find_element(By.NAME, 'password')
 submitButton = login_form.find_element(By.TAG_NAME, 'button')
 
 #login
-print(idEntry,passwordEntry)
 idEntry.send_keys(userID)
 passwordEntry.send_keys(userPASS)
 submitButton.click()
 
-#wait for the redirect back to homepage to load
+################### drop down menu hidden #####################
+#grab the nav bar "icon" element
+#same outcome as By.ID but potentially slower and our project is not that intensive
+#navBar = driver.find_element(By.XPATH, "//*[@id = 'profileMenu']")
+
 try:
-    wait = WebDriverWait(driver,10)
-    wait.until(EC.visibility_of_element_located((By.XPATH, '//a[@href="/logout.php"]')))
+    navBarById = driver.find_element(By.ID , "profileMenu")
+    navBarById.click()
+except NoSuchElementException:
+    print("No Element")
 except TimeoutException:
-    print("it goof'd")
+    print("Timed Out")
 
+#######################
+# Logged Verification #
+try:
+    driver.find_element(By.XPATH, "//a[@href='/logout.php']")
+except:
+    print("login failed")
 
-### find input for search field 
-### find button
-### option to pick english only
+downProc.lp(driver)
 
 driver.close()
