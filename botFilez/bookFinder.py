@@ -15,10 +15,20 @@ import time
 
 import linkProcessing as downProc
 
-from discordCreds import siteURL , userID , userPASS
+from discordCreds import siteURL , userID , userPASS , desired_save_dir
 
+####setup######
+options = webdriver.ChromeOptions()
+prefs = {
+    "download.default_directory" : desired_save_dir ,
+    "download.prompt_for_download" : True ,
+    "directory_upgrade" : True
+}
+options.add_experimental_option("prefs", prefs)
+driver = webdriver.Chrome(options = options)
 
-driver = webdriver.Chrome()
+##############
+
 driver.get(siteURL) #fill with our url
 driver.implicitly_wait(10)
 
