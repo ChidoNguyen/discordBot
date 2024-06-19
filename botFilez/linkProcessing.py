@@ -32,7 +32,7 @@ def lp(driver):
     #find author book title
     #book author might be anchored in "h1" with
     try:
-        driver.find_element(By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")#.click()
+        driver.find_element(By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook").click()
     except:
         print("rip")
     book_title = driver.find_element(By.TAG_NAME,'h1').text
@@ -45,11 +45,15 @@ def lp(driver):
     # for now only 1 file will exist at a time so we can do either
     # if storing multiple books or unfinished download multiple epub/crdownload may exist
     download_incomplete = True
-    time.sleep(120)
-    while download_incomplete:
+    time.sleep(5)
+    timeout_sec = 0
+    while download_incomplete  and timeout_sec < 20:
         #while not done check for file 
-        for file_name in os.listdir(desired_save_dir):
-            if file_name.endswith('.epub'):
+        for file_names in os.listdir("Users/cheeds/Downloads"):#os.listdir(desired_save_dir):
+            if file_names.endswith(".epub"):
                 download_incomplete = False
+                print("done")
+        time.sleep(1)
+        timeout_sec += 1
     print("????")
     return

@@ -21,7 +21,8 @@ from discordCreds import siteURL , userID , userPASS , desired_save_dir
 options = webdriver.ChromeOptions()
 prefs = {
     "download.default_directory" : desired_save_dir ,
-    "download.prompt_for_download" : True ,
+    "savefile.default_directory" : desired_save_dir , 
+    "download.prompt_for_download" : False ,
     "directory_upgrade" : True
 }
 options.add_experimental_option("prefs", prefs)
