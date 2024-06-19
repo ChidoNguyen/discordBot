@@ -4,8 +4,42 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
+
 
 MAX_RESULT_COUNT = 10
+# TODO : Implement bot interaction with script to get wanted book
+def bot_search_input():
+    return {"author" : "Blake Crouch" , "title" : "Recursion"}
+
+### search input ####
+def search_input():
+    XPATH = { 
+        's_field' : "//input[@id = 'searchFieldx']",
+        's_button' : "//button[@type='submit' and @aria-label='Search']"
+    }
+    driver = webdriver.Chrome()
+    driver.get("https://z-library.rs/")
+    bookInfo = bot_search_input()
+    author = bookInfo["author"]
+    title = bookInfo["title"]
+
+    ### grab input field for search box ###
+    try:
+        search_field = driver.find_element(By.XPATH, XPATH["s_field"])
+    except NoSuchElementException as e:
+        print(e)
+    
+    search_field.send_keys(author + " " + title)
+    try:
+        searchButton = driver.find_element(By.XPATH, XPATH["s_button"]).click()
+    except NoSuchElementException as e:
+        print(e)
+    
+
+    
+
+    ###
 def searchInput():
     testUrl = "https://z-library.rs/s/Blake%20Crouch%20Recursion/?languages%5B0%5D=english"
     driver = webdriver.Chrome()
@@ -51,4 +85,4 @@ def searchInput():
 
     driver.close()
 
-searchInput()
+search_input()
