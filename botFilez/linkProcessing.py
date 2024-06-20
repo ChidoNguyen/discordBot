@@ -10,12 +10,13 @@ import time
 from discordCreds import desired_save_dir
 #url link input
 
-def new_button_edit():
+def auto_download(driver,searchLinks):
     #testing links#
-    driver = webdriver.Chrome()
-    bookURL = 'https://z-library.rs/book/17576434/03d5b2/project-hail-mary.html?dsource=recommend'
-    driver.get(bookURL)
+    #driver = webdriver.Chrome()
+    #bookURL = 'https://z-library.rs/book/17576434/03d5b2/project-hail-mary.html?dsource=recommend'
+    #driver.get(bookURL)
     ########
+    driver.get(searchLinks[0])
     download_link = None
     #this section is still fine since the download section is still viable 
     try:
@@ -32,51 +33,18 @@ def new_button_edit():
     except NoSuchElementException as e:
         print(e)
     
-    # need to get and verify the epub option from the dropdown menu
-    #dropDownMenu = driver.find_element(By.XPATH , "//ul[@class = 'dropdown-menu']")
-    dropDownMenu = driver.find_element(By.XPATH, "//div[@class = 'btn-group']")
-    #might not need to click the drop down
-    tmp = dropDownMenu.find_elements(By.TAG_NAME , 'a')
-    print(len(tmp))
+  #driver too fast need to delay for li to show up
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class = 'addDownloadedBook']")))
+    except NoSuchElementException as e:
+        print(e)
+    ############### extract list items
+
+    dropDownMenuOptions = driver.find_elements(By.XPATH , "//a[contains(@class , 'addDownloadedBook')]")
     
-    #TODO : MIGHT NEED TO EDIT IF OUR page which should be EPUB isnt first download choice
-    print(download_link)
-    return
-def auto_download(driver,search_results):
-    bookURL = search_results[0] #only 1 result processing for now expand to multi options later
+    #assuming first choice matches the search result file type we want
+    dropDownMenuOptions[1].click()
 
-    #driver = webdriver.Chrome()
-    driver.get(bookURL)
-
-    #wait for download link to be avail
-    try:
-        wait = WebDriverWait(driver,10)
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")))
-    except NoSuchElementException:
-        print("Failed to find download element.")
-    
-    #grab the link#
-
-    try:
-        urlLink = driver.find_element(By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook").get_attribute('href')
-    except NoSuchElementException:
-        print("Link not found.")
-
-    #find author book title
-    #book author might be anchored in "h1" with
-    try:
-        driver.find_element(By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook").click()
-    except:
-        print("DL Button Missing")
-    book_title = driver.find_element(By.TAG_NAME,'h1').text
-    author_text = driver.find_element(By.XPATH , '//a[@class = "color1"]').text
-    file_saved_name = book_title + "_____" + author_text
-    ext_ending = ".crdownload"
-
-    #few approaches either wait for our file to appear via .epub showing up 
-    # or until crdownload ceases to exist
-    # for now only 1 file will exist at a time so we can do either
-    # if storing multiple books or unfinished download multiple epub/crdownload may exist
     download_incomplete = True
     time.sleep(5)
     timeout_sec = 0
@@ -88,5 +56,11 @@ def auto_download(driver,search_results):
         time.sleep(1)
         timeout_sec += 1
     return driver
+    
+    
+    #TODO : MIGHT NEED TO EDIT IF OUR page which should be EPUB isnt first download choice
+    
 
-new_button_edit()
+
+
+#new_button_edit()
