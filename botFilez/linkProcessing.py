@@ -9,6 +9,39 @@ import os
 import time
 from discordCreds import desired_save_dir
 #url link input
+
+def new_button_edit():
+    #testing links#
+    driver = webdriver.Chrome()
+    bookURL = 'https://z-library.rs/book/17576434/03d5b2/project-hail-mary.html?dsource=recommend'
+    driver.get(bookURL)
+    ########
+    download_link = None
+    #this section is still fine since the download section is still viable 
+    try:
+        wait = WebDriverWait(driver,10)
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")))
+    except NoSuchElementException:
+        print("Failed to find download element.")
+    
+    #need to click "..." next to the old download now button to go to drop down menu
+
+    try:
+        dropDown = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary.dropdown-toggle.dlDropdownBtn")
+        dropDown.click()
+    except NoSuchElementException as e:
+        print(e)
+    
+    # need to get and verify the epub option from the dropdown menu
+    #dropDownMenu = driver.find_element(By.XPATH , "//ul[@class = 'dropdown-menu']")
+    dropDownMenu = driver.find_element(By.XPATH, "//div[@class = 'btn-group']")
+    #might not need to click the drop down
+    tmp = dropDownMenu.find_elements(By.TAG_NAME , 'a')
+    print(len(tmp))
+    
+    #TODO : MIGHT NEED TO EDIT IF OUR page which should be EPUB isnt first download choice
+    print(download_link)
+    return
 def auto_download(driver,search_results):
     bookURL = search_results[0] #only 1 result processing for now expand to multi options later
 
@@ -55,3 +88,5 @@ def auto_download(driver,search_results):
         time.sleep(1)
         timeout_sec += 1
     return driver
+
+new_button_edit()
