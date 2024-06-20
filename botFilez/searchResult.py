@@ -13,13 +13,12 @@ def bot_search_input():
     return {"author" : "Blake Crouch" , "title" : "Recursion"}
 
 ### search input ####
-def search_input():
+def search_input(driver):
     XPATH = { 
         's_field' : "//input[@id = 'searchFieldx']",
         's_button' : "//button[@type='submit' and @aria-label='Search']"
     }
-    driver = webdriver.Chrome()
-    driver.get("https://z-library.rs/")
+
     bookInfo = bot_search_input()
     author = bookInfo["author"]
     title = bookInfo["title"]
@@ -36,17 +35,16 @@ def search_input():
     except NoSuchElementException as e:
         print(e)
     
-
+    return driver
     
 
     ###
-def searchInput():
-    testUrl = "https://z-library.rs/s/Blake%20Crouch%20Recursion/?languages%5B0%5D=english"
-    driver = webdriver.Chrome()
-    driver.get(testUrl)
+def search_result_data(driver):
+
 
     #each item in search_results cooresponds to an instance of the book we're looking for
     #check english + epub
+    #truncate 10 results or if less take as is
     search_results = driver.find_elements(By.CLASS_NAME , 'resItemTable')
     search_results = search_results[:MAX_RESULT_COUNT] if len(search_results) > MAX_RESULT_COUNT else search_results #take top 10 res
 
@@ -63,18 +61,19 @@ def searchInput():
     '''
 
 
-    target_divs ={'eng' : "property_value text-capitalize" , 'epub' : "property_value" }
+    TARGET_DIVS ={'eng' : "property_value text-capitalize" , 'epub' : "property_value" }
     valid_links = []
     for items in search_results:
         bookDetails = items.find_element(By.CLASS_NAME, 'bookDetailsBox') #the site  doesnt have a universal div structure to find english/epub
         lang = fileType = False
         all_divs = bookDetails.find_elements(By.CSS_SELECTOR, 'div')
 
+        #examine the parent div in all_divs for presence of Eng language and epub
         for sub_divs in all_divs:
             class_name = sub_divs.get_attribute('class').strip()
-            if class_name == target_divs['eng']:
+            if class_name == TARGET_DIVS['eng']:
                 lang = True
-            if class_name == target_divs['epub'] and "EPUB" in sub_divs.text:
+            if class_name == TARGET_DIVS['epub'] and "EPUB" in sub_divs.text:
                 fileType = True
             if lang and fileType:
                 valid_links.append(items.find_element(By.TAG_NAME , 'a').get_attribute('href'))
@@ -83,6 +82,4 @@ def searchInput():
     #print(*valid_links , sep = '\n')
 
 
-    driver.close()
-
-search_input()
+    return valid_links

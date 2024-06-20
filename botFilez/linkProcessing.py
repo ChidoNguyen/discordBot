@@ -9,8 +9,8 @@ import os
 import time
 from discordCreds import desired_save_dir
 #url link input
-def lp(driver):
-    bookURL = "https://z-library.rs/book/28168813/d7121c/the-anxious-generation.html"
+def auto_download(driver,search_results):
+    bookURL = search_results[0] #only 1 result processing for now expand to multi options later
 
     #driver = webdriver.Chrome()
     driver.get(bookURL)
@@ -34,7 +34,7 @@ def lp(driver):
     try:
         driver.find_element(By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook").click()
     except:
-        print("rip")
+        print("DL Button Missing")
     book_title = driver.find_element(By.TAG_NAME,'h1').text
     author_text = driver.find_element(By.XPATH , '//a[@class = "color1"]').text
     file_saved_name = book_title + "_____" + author_text
@@ -49,11 +49,9 @@ def lp(driver):
     timeout_sec = 0
     while download_incomplete  and timeout_sec < 20:
         #while not done check for file 
-        for file_names in os.listdir("Users/cheeds/Downloads"):#os.listdir(desired_save_dir):
+        for file_names in os.listdir(desired_save_dir):
             if file_names.endswith(".epub"):
                 download_incomplete = False
-                print("done")
         time.sleep(1)
         timeout_sec += 1
-    print("????")
-    return
+    return driver

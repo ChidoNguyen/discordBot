@@ -90,12 +90,6 @@ def login(driver):
         print("login failed")
         return None
     
-if __name__ == 'main':
-    driver = driver_setup()
-    driver = login(driver)
-    time.sleep(2)
-    search_input(driver)
-    time.sleep(5)
-    driver.close()
+
 
 
