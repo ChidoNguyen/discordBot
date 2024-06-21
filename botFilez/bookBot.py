@@ -2,6 +2,9 @@
 from bookFinder import driver_setup , login
 from searchResult import search_input , search_result_data
 from linkProcessing import auto_download
+'''
+Initializes our chrome webdriver to automate the download process 
+'''
 def automated_book_download():
     chrome_Driver_Init= driver_setup()
     chrome_Driver_Login = login(chrome_Driver_Init)
