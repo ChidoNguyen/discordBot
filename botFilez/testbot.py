@@ -75,6 +75,14 @@ async def get_book(message):
     message_parsed = message.content.split()
     #ignore the first item
     search_string = ' '.join(message_parsed[1:])
+    #requests post
+    data = {"book_deets" : message_parsed}
+    response = requests.post(API_ENDPOINT['api'] + url_path , json = data)
+    if response.status_code == 200:
+        print("Worked")
+    else:
+        print("something went wrong")
+
 
     #print(search_string)
     await message.channel.send("library is closed right now")

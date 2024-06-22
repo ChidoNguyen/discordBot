@@ -9,19 +9,15 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 MAX_RESULT_COUNT = 10
 # TODO : Implement bot interaction with script to get wanted book
-def bot_search_input():
-    return {"author" : "Blake Crouch" , "title" : "Recursion"}
 
 ### search input ####
-def search_input(driver):
+def search_input(driver,desiredBook):
     XPATH = { 
         's_field' : "//input[@id = 'searchFieldx']",
         's_button' : "//button[@type='submit' and @aria-label='Search']"
     }
 
-    bookInfo = bot_search_input()
-    author = bookInfo["author"]
-    title = bookInfo["title"]
+    bookInfo = desiredBook
 
     ### grab input field for search box ###
     try:
@@ -29,7 +25,7 @@ def search_input(driver):
     except NoSuchElementException as e:
         print(e)
     
-    search_field.send_keys(author + " " + title)
+    search_field.send_keys(desiredBook)
     try:
         searchButton = driver.find_element(By.XPATH, XPATH["s_button"]).click()
     except NoSuchElementException as e:
