@@ -1,3 +1,4 @@
 discordCreds.*
 myvenv
 *pycache*
+*tmp.*
