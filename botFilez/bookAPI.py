@@ -1,17 +1,14 @@
-from flask import Flask 
-from requests import request , jsonify
+from flask import Flask ,jsonify,request
+import requests
 import subprocess
 app = Flask(__name__)
 
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
-    book_details = request.json()
-    try:
-        outcome = subprocess.run(['python3' , './bookBot.py'] + book_details, capture_output=True, text = True)
-    except Exception as e:
-        print(e)
-
-    if outcome : return 'done' , 200
-    
-    return 'failed' , 204
-
+        book_details = request.json['book_info']
+        sub_com_args = ['python3' , './bookBot.py', book_details]
+        outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
+        if outcome.statuscode == 0:
+            return "OK" , 200
+        else:
+            return "Nope", 204

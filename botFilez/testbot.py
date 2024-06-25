@@ -1,6 +1,7 @@
 import discord
 import discordCreds as creds
 import requests
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -8,9 +9,9 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 GUILD = "Janitors Guild"
-
+API_ENDPOINT = { 'api' : "http://localhost:5000/"}
 ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido']
-USER_ID = {'kkot' : '705999688893071430', 'jonathan': '137004891360067584'}
+USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
 COMMAND_PREFIX = "!"
 commands ={}
 def command(name):
@@ -20,7 +21,14 @@ def command(name):
     return decorator
 
 ##### * * ###################
-
+def discord_file_creation(*args):
+    myfile = None
+    for items in creds.desired_save_dir:
+        if items.endswith('epub'):
+            myfile = items
+    with open(items , 'rb') as discordFile:
+        attached_file = discord.File(file = myfile)
+    return attached_file
 #on ready for when the bot has successfully joined a server/guild
 @client.event
 async def on_ready():
@@ -64,9 +72,8 @@ async def helper(message):
 
 @command('tellmeajoke')
 async def tell_joke(message):
-    await message.channel.send("no")
+    await message.channel.send("look in the mirror")
 
-API_ENDPOINT = { 'api ' : "http://localhost:5000/"}
 @command('getbook')
 async def get_book(message):
     url_path = "search_download/"
@@ -76,9 +83,15 @@ async def get_book(message):
     #ignore the first item
     search_string = ' '.join(message_parsed[1:])
     #requests post
-    data = {"book_deets" : message_parsed}
-    response = requests.post(API_ENDPOINT['api'] + url_path , json = data)
+    data = {"book_info" : search_string}
+    try:
+        response = requests.post('http://localhost:5000/search_download/' , json = data)
+        print(data)
+    except:
+        print("f response")
     if response.status_code == 200:
+        file_obj = discord_file_creation()
+        await message.channel.send("File : " , file = file_obj)
         print("Worked")
     else:
         print("something went wrong")
@@ -89,8 +102,11 @@ async def get_book(message):
 
 @command('shutdown')
 async def kill_it(message):
-    await message.channel.send("dead bot")
-    await client.close()
+    if message.author.id == creds.adminID:
+        await message.channel.send("dead bot")
+        await client.close()
+    else:
+        print(f'Stop it {message.author}.')
 
 client.run(creds.myDiscordCreds)
 
