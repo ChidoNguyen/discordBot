@@ -2,3 +2,4 @@ discordCreds.*
 myvenv
 *pycache*
 *tmp.*
+*bot_cookies*
