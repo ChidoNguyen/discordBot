@@ -12,6 +12,8 @@ def automated_book_download():
     desired_book = sys.argv[1:]
     chrome_Driver_Init= driver_setup()
     chrome_Driver_Login = login(chrome_Driver_Init)
+
+    # TODO : Cookies for login state #
     chrome_Driver_Search = search_input(chrome_Driver_Login , desired_book)
     searchResultData = search_result_data(chrome_Driver_Search) # List of search result links
     if not searchResultData:
