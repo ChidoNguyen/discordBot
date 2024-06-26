@@ -34,10 +34,12 @@ def auto_download(driver,searchLinks):
         print(e)
     
   #driver too fast need to delay for li to show up
-    try:
-        wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class = 'addDownloadedBook']")))
-    except NoSuchElementException as e:
-        print(e)
+    # try:
+    #     wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class = 'addDownloadedBook']")))
+    # except NoSuchElementException as e:
+    #     print(e)
+    # except:
+    #     print("doode")
     ############### extract list items
 
     dropDownMenuOptions = driver.find_elements(By.XPATH , "//a[contains(@class , 'addDownloadedBook')]")
