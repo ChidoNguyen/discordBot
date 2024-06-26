@@ -16,7 +16,6 @@ def automated_book_download():
     chrome_Driver_Init= driver_setup()
 
     #cookies expiry check if its true ( still valid)
-
     if cookie_epoch():
         load_cookies(chrome_Driver_Init)
         chrome_Driver_Login = chrome_Driver_Init
