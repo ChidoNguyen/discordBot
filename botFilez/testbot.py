@@ -5,6 +5,7 @@ import os
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = discord.Client(intents=intents)
 
@@ -21,13 +22,14 @@ def command(name):
     return decorator
 
 ##### * * ###################
-def discord_file_creation(*args):
+def discord_file_creation():
     myfile = None
-    for items in creds.desired_save_dir:
+    for items in os.listdir(creds.desired_save_dir):
         if items.endswith('epub'):
             myfile = items
-    with open(items , 'rb') as discordFile:
-        attached_file = discord.File(file = myfile)
+    joined_path = os.path.join(creds.desired_save_dir , myfile)
+    with open(joined_path , 'rb') as discordFile:
+        attached_file = discord.File(fp = discordFile)
     return attached_file
 #on ready for when the bot has successfully joined a server/guild
 @client.event
@@ -72,7 +74,7 @@ async def helper(message):
 
 @command('tellmeajoke')
 async def tell_joke(message):
-    await message.channel.send("look in the mirror")
+    await message.channel.send(f"look in the mirror {message.author.mention}!")
 
 @command('getbook')
 async def get_book(message):
@@ -91,14 +93,12 @@ async def get_book(message):
         print("f response")
     if response.status_code == 200:
         file_obj = discord_file_creation()
-        await message.channel.send("File : " , file = file_obj)
-        print("Worked")
+        await message.channel.send("File: ", file = file_obj)
+        await message.channel.send(f"{message.author.mention}")
+        requests.get('http://localhost:5000/cleanup')
     else:
         print("something went wrong")
-
-
-    #print(search_string)
-    await message.channel.send("library is closed right now")
+        await message.channel.send("library is closed right now")
 
 @command('shutdown')
 async def kill_it(message):

@@ -5,7 +5,7 @@ import json
 import time
 from bookFinder import driver_setup , login
 from searchResult import search_input , search_result_data
-from linkProcessing import auto_download
+from linkProcessing import download_attempt
 from botCookies import cookie_epoch , load_cookies , save_cookies
 from discordCreds import desired_save_dir
 '''
@@ -25,10 +25,11 @@ def automated_book_download():
 
     chrome_Driver_Search = search_input(chrome_Driver_Login , desired_book)
     searchResultData = search_result_data(chrome_Driver_Search) # List of search result links
+    
     if not searchResultData:
         print("No results found")
     else:    
-        chrome_Driver_Download_Process = auto_download(chrome_Driver_Search , searchResultData)
+        chrome_Driver_Download_Process = download_attempt(chrome_Driver_Search , searchResultData)
 
     chrome_Driver_Download_Process.close()
     for items in os.listdir(desired_save_dir):
