@@ -2,8 +2,7 @@ import discord
 import discordCreds as creds
 import requests
 import os
-import threading
-shutdown_event = threading.Event()
+
 
 
 intents = discord.Intents.default()
@@ -67,7 +66,7 @@ async def on_message(message):
 help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
     "- **help** : what you see is what you get",
-    "- **tellmeajokke** : its empty",
+    "- **tellmeajoke** : its empty",
     "- **getbook** : enter book details after command in any order (author title) `!getbook author title`"
 ]
 @command('help')
@@ -108,7 +107,6 @@ async def kill_it(message):
     if message.author.id == creds.adminID:
         await message.channel.send("dead bot")
         await client.close()
-        shutdown_event.set()
         requests.get(f'http://localhost:5000/shutdown/{message.author.id}')
     else:
         print(f'Stop it {message.author}.')

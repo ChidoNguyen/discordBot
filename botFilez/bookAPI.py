@@ -2,18 +2,14 @@ from flask import Flask ,jsonify,request
 import requests
 import subprocess
 import os
-import threading
 import sys
 from discordCreds import desired_save_dir , adminID
 
-shutdown_event = threading.Event()
 app = Flask(__name__)
 
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
-        if shutdown_event.is_set():
-             return "Server shutting down." , 503
-        
+
         book_details = request.json['book_info']
         if not book_details:
              return "Missing 'book_info' in request body" , 400
@@ -27,9 +23,6 @@ def search_download():
         
 @app.route('/cleanup/',methods = ['GET'])
 def cleanup():
-    if shutdown_event.is_set():
-             return "Server shutting down." , 503
-    
     for items in os.listdir(desired_save_dir):
         file_path = os.path.join(desired_save_dir,items)
         if os.path.isfile(file_path) and items.endswith('epub'):
@@ -40,13 +33,7 @@ def cleanup():
 def shut_it(admin_ID):
     if adminID != int(admin_ID):
          return "Unauthorized" , 401
-    shutdown_event.set()
-    shutdown_server()
     return "Shutdown initiated" , 200
-
-def shutdown_server():
-    print("1")
-    sys.exit(0)
      
 if __name__ == '__main__':
     app.run(debug=True)
