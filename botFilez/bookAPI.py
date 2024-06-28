@@ -3,6 +3,7 @@ import requests
 import subprocess
 import os
 import threading
+import sys
 from discordCreds import desired_save_dir , adminID
 
 shutdown_event = threading.Event()
@@ -37,12 +38,17 @@ def cleanup():
 
 @app.route('/shutdown/<admin_ID>' , methods = ['GET'])
 def shut_it(admin_ID):
-    if adminID != admin_ID:
+    if adminID != int(admin_ID):
          return "Unauthorized" , 401
     shutdown_event.set()
+    shutdown_server()
     return "Shutdown initiated" , 200
 
+def shutdown_server():
+    print("1")
+    sys.exit(0)
+     
 if __name__ == '__main__':
-     app.run()
+    app.run(debug=True)
 
         

@@ -1,11 +1,11 @@
 import threading
 
 from bookAPI import app as book_API
-from discordBot import run_discord_bot as discord_bot
+from discordBot import client
 
 
 def run_discord_bot():
-    discord_bot()
+    client.run()
 
 def run_book_api():
     book_API.run(host='127.0.0.1' , port=5000)
