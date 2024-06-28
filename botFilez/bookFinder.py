@@ -8,7 +8,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException , NoSuchElementException   
+from selenium.common.exceptions import TimeoutException , NoSuchElementException
+from selenium.webdriver.chrome.service import Service
 
 
 import time
@@ -32,7 +33,8 @@ def driver_setup():
         "directory_upgrade" : True
     }
     options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Chrome(options = options)
+    service = Service(executable_path = 'usr/bin/chromedriver')
+    driver = webdriver.Chrome(service = service , options = options)
 
     ##############
 
