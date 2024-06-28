@@ -33,8 +33,8 @@ def driver_setup():
         "directory_upgrade" : True
     }
     options.add_experimental_option("prefs", prefs)
-    service = Service(executable_path = 'usr/bin/chromedriver')
-    driver = webdriver.Chrome(service = service , options = options)
+    service = Service(executable_path='/usr/bin/chromedriver')
+    driver = webdriver.Chrome(service=service , options=options)
 
     ##############
 
