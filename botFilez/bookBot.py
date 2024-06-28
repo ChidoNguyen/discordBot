@@ -1,4 +1,5 @@
 #from selenium import webdriver
+#edit for rasp-pi system
 import os
 import sys
 import json
