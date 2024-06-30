@@ -103,10 +103,15 @@ async def get_book(message):
 @command('shutdown')
 async def kill_it(message):
     if message.author.id == creds.adminID:
+        requests.post("http://localhost:5000/shutdown/")
         await message.channel.send("dead bot")
         await client.close()
     else:
         print(f'Stop it {message.author}.')
 
-client.run(creds.myDiscordCreds)
+def run():
+    client.run(creds.myDiscordCreds)
+
+if __name__ == '__main__':
+    run()
 
