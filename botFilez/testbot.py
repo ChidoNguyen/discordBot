@@ -11,7 +11,7 @@ client = discord.Client(intents=intents)
 
 GUILD = "Janitors Guild"
 API_ENDPOINT = { 'api' : "http://localhost:5000/"}
-ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido']
+ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido', 'book-club']
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
 COMMAND_PREFIX = "!"
 commands ={}
