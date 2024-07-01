@@ -1,5 +1,7 @@
 <h1 align="center">Discord Book Bot</h1>
+
 ---
+
 # Features
 - Bot:
   - !getbook (main feature) : "!getbook author title" Bot will provide attached file of requested publication.
@@ -11,8 +13,10 @@
   - Depending on which request is sent in; API will spin up subprocess to execute Selenium script, and do clean up afterwards.
 - Selenium Automation:
   - Automatically login, navigate, and download on specified webpage.
-  - Utilizes different aspect of HTML/CSS components to hopefully make it more robust to site upgrades. 
+  - Utilizes different aspect of HTML/CSS components to hopefully make it more robust to site upgrades.
+
 ---
+
 # Tools and Technologies Used
 - **Python** : Primary programming language used for all components of the project.
 - **Flask** : Used to create an API endpoint web server, allowing for the Bot to interact with it via HTTP requests.
@@ -21,7 +25,9 @@
 - **Requests** : Used for making HTTP requests to API endpoint by the Discord Bot.
 - **Multiprocessing** : Used to manage multiple processed, coupled the initiation and shutdown of Bot + API. 
 - **HTML/CSS** : Used in conjunction with Selenium to locate web elements.
+  
 ---
+
 # Installation/Requirements
 - Python
 - Discord
