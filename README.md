@@ -1,1 +1,4 @@
-attempting to make initial discord bot
+## Discord Book Bot
+---
+
+<h1 align="center"> book </h1>
