@@ -107,6 +107,8 @@ async def kill_it(message):
         await client.close()
     else:
         print(f'Stop it {message.author}.')
+def run():
+    client.run(creds.myDiscordCreds)
 
-client.run(creds.myDiscordCreds)
-
+if __name__ == '__main__':
+    run()
