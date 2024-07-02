@@ -24,7 +24,7 @@ from discordCreds import siteURL , userID , userPASS , desired_save_dir
 ###############
 def driver_setup():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     prefs = {
         "download.default_directory" : desired_save_dir ,
         "savefile.default_directory" : desired_save_dir , 
