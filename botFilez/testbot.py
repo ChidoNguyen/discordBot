@@ -75,7 +75,7 @@ async def helper(message):
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
-
+# todo : HANDLE FILE LARGE EXCEPTION
 @command('getbook')
 async def get_book(message):
     url_path = "search_download/"
@@ -88,12 +88,15 @@ async def get_book(message):
     data = {"book_info" : search_string}
     try:
         response = requests.post('http://localhost:5000/search_download/' , json = data)
-        print(data)
+        #print(data)
     except:
         print("f response")
     if response.status_code == 200:
         file_obj = discord_file_creation()
-        await message.channel.send("File: ", file = file_obj)
+        try:
+            await message.channel.send("File: ", file = file_obj)
+        except discord.HTTPException as e:
+            print(e)
         await message.channel.send(f"{message.author.mention}")
         requests.get('http://localhost:5000/cleanup')
     else:
@@ -107,6 +110,5 @@ async def kill_it(message):
         await client.close()
     else:
         print(f'Stop it {message.author}.')
-
 client.run(creds.myDiscordCreds)
 

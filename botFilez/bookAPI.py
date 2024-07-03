@@ -2,16 +2,18 @@ from flask import Flask ,jsonify,request
 import requests
 import subprocess
 import os
+import platform
 from discordCreds import desired_save_dir
 
 app = Flask(__name__)
-env_path = './myvenv/Scripts/python' #for windows
+env_path = './myvenv/Scripts/python' if platform.system() == 'Windows' else "python3" #for windows VSC where env is preset in settings
+
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
         book_details = request.json['book_info']
         sub_com_args = [env_path , 'bookBot.py', book_details]
         outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
-        print(outcome.check_returncode, outcome.stdout, outcome.stderr)
+        #print(outcome.check_returncode, outcome.stdout, outcome.stderr)
         if outcome.returncode == 0:
             return "OK" , 200
         else:
