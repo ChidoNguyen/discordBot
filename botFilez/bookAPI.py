@@ -26,3 +26,4 @@ def cleanup():
         if os.path.isfile(file_path) and items.endswith('epub'):
             os.remove(file_path)
     return "cleaned up " , 200
+
