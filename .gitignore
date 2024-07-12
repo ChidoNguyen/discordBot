@@ -3,4 +3,4 @@ myvenv
 *pycache*
 *tmp.*
 *bot_cookies*
-*DS_Store*
+*.DS_Store*
