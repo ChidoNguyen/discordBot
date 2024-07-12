@@ -11,6 +11,8 @@ from discordCreds import desired_save_dir
 '''
 Initializes our chrome webdriver to automate the download process 
 '''
+
+#!TODO : Splice into "search + results" and "download_choice"
 def automated_book_download():
     desired_book = sys.argv[1:]
     chrome_Driver_Init= driver_setup()
@@ -25,7 +27,9 @@ def automated_book_download():
 
     chrome_Driver_Search = search_input(chrome_Driver_Login , desired_book)
     searchResultData = search_result_data(chrome_Driver_Search) # List of search result links
-    
+    return searchResultData
+
+    ######### splice here #######
     if not searchResultData:
         print("No results found")
     else:    
@@ -37,4 +41,8 @@ def automated_book_download():
             return True
     return False
 if __name__ == "__main__":
-    automated_book_download()
+    results = automated_book_download()
+    with open( os.path.join(desired_save_dir ,"output.txt") , 'w') as f:
+        for items in results:
+            print(items , file = f)
+            #print(items)

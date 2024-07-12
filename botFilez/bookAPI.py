@@ -3,6 +3,7 @@ import requests
 import subprocess
 import os
 import platform
+import json
 from discordCreds import desired_save_dir
 
 app = Flask(__name__)
@@ -14,11 +15,34 @@ def search_download():
         sub_com_args = [env_path , 'bookBot.py', book_details]
         outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
         #print(outcome.check_returncode, outcome.stdout, outcome.stderr)
-        if outcome.returncode == 0:
-            return "OK" , 200
-        else:
-            return "Nope", 204
+
+        #print(outcome.stdout)
+        output_path = os.path.join(desired_save_dir,'output.txt')
         
+        if outcome.returncode == 0:
+            #sub success == output.txt is generated and created
+            try:
+                with open(output_path , 'r') as f:
+                    data = f.read().strip()
+                response = {
+                    'response' : 'success' ,
+                    'data' : data
+                }
+                status_code = 200
+            except:
+                 response = {
+                      'response' : 'bad file',
+                      'data' : 'bad file or empty'
+                 }
+                 status_code = 404
+        else:
+            response = {
+                 'status' : 'Failed',
+                 'response' : 'Subprocess failed',
+
+            }
+            status_code = 404
+        return jsonify(response),status_code
 @app.route('/cleanup/',methods = ['GET'])
 def cleanup():
     for items in os.listdir(desired_save_dir):

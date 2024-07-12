@@ -2,19 +2,32 @@ import discord
 import discordCreds as creds
 import requests
 import os
+import json
 
+#bot permissions#
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
 client = discord.Client(intents=intents)
 
+#some housekeeping items and discord server specific for internal usage#
 GUILD = "Janitors Guild"
 API_ENDPOINT = { 'api' : "http://localhost:5000/"}
 ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido']
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
 COMMAND_PREFIX = "!"
 commands ={}
+
+#user states
+user_states = {}
+
+class UserStates :
+    def __init__(self):
+        self.cancel_flag = False
+        self.task = None
+        self.book_options = []
+
 def command(name):
     def decorator(func):
         commands[name] = func
@@ -80,6 +93,8 @@ async def tell_joke(message):
 async def get_book(message):
     url_path = "search_download/"
     requester = message.author
+    #adding user state
+
     #message is the original bot command !getbook author title
     message_parsed = message.content.split()
     #ignore the first item
@@ -91,6 +106,8 @@ async def get_book(message):
         #print(data)
     except:
         print("f response")
+
+    ##### code below will be moved to "download" as pect later
     if response.status_code == 200:
         file_obj = discord_file_creation()
         try:
@@ -102,6 +119,48 @@ async def get_book(message):
     else:
         print("something went wrong")
         await message.channel.send("library is closed right now")
+@command('getbook-adv')
+async def getbook_adv(message):
+    url_path = "search_download/"
+    requester = message.author
+    #adding user state
+    if requester not in user_states:
+        user_states[requester] = UserStates()
+    state = user_states[requester]
+
+    async def process_user_query():
+        #message is the original bot command !getbook author title
+        message_parsed = message.content.split()
+        #ignore the first item
+        search_string = ' '.join(message_parsed[1:])
+        #requests post
+        data = {"book_info" : search_string}
+        try:
+            response = requests.post('http://localhost:5000/search_download/' , json = data)
+            #print(data)
+        except:
+            print("f response")
+
+        if state.cancel_flag == True:
+            await message.channel.send("Book request canned.")
+            return
+        
+        unprocessed_response_payload= json.loads(response.content)
+        state.book_options = unprocessed_response_payload['data'].split()
+        my_msg = ""
+        for idx,items in enumerate(state.book_options , start = 1):
+            my_msg += f'{idx}. <{items}>\n'
+        
+        await message.channel.send(my_msg)
+
+    state.task = client.loop.create_task(process_user_query())
+    return
+@command('cancel')
+async def cancel(message):
+    requester = message.author
+    if requester in user_states and user_states[requester].task:
+        user_states[requester].cancel_flag = True
+    #await message.channel.send("Canned the current bot task.")
 
 @command('shutdown')
 async def kill_it(message):
