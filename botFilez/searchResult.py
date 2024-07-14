@@ -8,10 +8,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 MAX_RESULT_COUNT = 10
-# TODO : Implement bot interaction with script to get wanted book
 
 ### search input ####
 def search_input(driver,desiredBook):
+    #search field and search button xpath#
     XPATH = { 
         's_field' : "//input[@id = 'searchFieldx']",
         's_button' : "//button[@type='submit' and @aria-label='Search']"
@@ -34,7 +34,7 @@ def search_input(driver,desiredBook):
     return driver
     
 
-    ###
+
 def search_result_data(driver):
 
 
@@ -57,8 +57,12 @@ def search_result_data(driver):
     '''
 
 
-    TARGET_DIVS ={'eng' : "property_value text-capitalize" , 'epub' : "property_value" }
+    TARGET_DIVS ={
+        'eng' : "property_value text-capitalize" , 
+        'epub' : "property_value" 
+        }
     valid_links = []
+    #filters out non eng and epub items
     for items in search_results:
         bookDetails = items.find_element(By.CLASS_NAME, 'bookDetailsBox') #the site  doesnt have a universal div structure to find english/epub
         lang = fileType = False
@@ -75,7 +79,4 @@ def search_result_data(driver):
                 valid_links.append(items.find_element(By.TAG_NAME , 'a').get_attribute('href'))
                 break
     
-    #print(*valid_links , sep = '\n')
-
-
     return valid_links

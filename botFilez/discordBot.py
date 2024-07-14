@@ -11,7 +11,7 @@ client = discord.Client(intents=intents)
 
 GUILD = "Janitors Guild"
 API_ENDPOINT = { 'api' : "http://localhost:5000/"}
-ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido']
+ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido','book-club']
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
 COMMAND_PREFIX = "!"
 commands ={}
@@ -31,6 +31,7 @@ def discord_file_creation():
     with open(joined_path , 'rb') as discordFile:
         attached_file = discord.File(fp = discordFile)
     return attached_file
+
 #on ready for when the bot has successfully joined a server/guild
 @client.event
 async def on_ready():
@@ -75,6 +76,7 @@ async def helper(message):
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
+    
 # todo : HANDLE FILE LARGE EXCEPTION
 @command('getbook')
 async def get_book(message):

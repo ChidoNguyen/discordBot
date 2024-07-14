@@ -9,10 +9,18 @@ return true if valid false if not
 '''
 cookies_path = "./cookies/"
 cookies_filename = "bot_cookies.json"
+
 def cookie_epoch():
-    #expiry_values = list(int)
-    #in line processing assuming cookies arent large data sets
-    #save on space
+    
+    #makes directory if it hasnt already been made#
+    try:
+        os.makedirs(cookies_path,exist_ok=True)
+    except Exception as e:
+        print(e)
+    
+    #check expiration of cookies login values
+    #if expired or not found return False
+    #if still valid True
     try:
         with open(cookies_path + cookies_filename, 'r') as file:
             cookies = json.load(file)
@@ -24,6 +32,7 @@ def cookie_epoch():
     except FileNotFoundError:
         return False
 
+#loads previously saved cookies 
 def load_cookies(driver):
     with open(cookies_path + cookies_filename,'r') as file:
         cookies = json.load(file)
@@ -33,6 +42,7 @@ def load_cookies(driver):
             driver.add_cookie(cookie)
     driver.refresh()
 
+#dumps current cookies from driver session to refresh/update expired or missing cookies.
 def save_cookies(driver):
     cookies = driver.get_cookies()
     with open(cookies_path + cookies_filename , 'w') as file:
