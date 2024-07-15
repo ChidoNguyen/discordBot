@@ -21,6 +21,7 @@ def automated_book_download():
     # 3) url -> download from provided URL
     if len(sys.argv) != 3:
         print("Invalid amount of arguments provided.")
+        sys.exit(1)
     desired_book = sys.argv[1]
     chrome_Driver_Init= driver_setup()
 

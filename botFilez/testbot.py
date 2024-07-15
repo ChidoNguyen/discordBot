@@ -42,7 +42,7 @@ def discord_file_creation():
             myfile = items
     joined_path = os.path.join(creds.desired_save_dir , myfile)
     with open(joined_path , 'rb') as discordFile:
-        attached_file = discord.File(fp = discordFile)
+        attached_file = discord.File(fp = discordFile , filename=myfile)
     return attached_file
 #on ready for when the bot has successfully joined a server/guild
 @client.event
@@ -79,8 +79,8 @@ help_commands = [
     "- **help** : what you see is what you get",
     "- **tellmeajokke** : its empty",
     "- **getbook** : enter book details after command in any order (author title) `!getbook author title`",
-    "- **getbook-adv** : similar to getbook but will let you pick from a list of links `!getbook-adv author title`",
-    "- **pick** : choose from a link from the list of links from !getbook-adv `!pick 3` picks link 3"
+    "- **getbook-adv** : enter book details and get a list of links to pick from with `!pick` command" ,
+    "- **pick** : enter number corresponding with link `!pick 3`"
 ]
 @command('help')
 async def helper(message):
@@ -104,7 +104,7 @@ async def get_book(message):
     #requests post
     data = {"book_info" : search_string}
     try:
-        response = requests.post('http://localhost:5000/search_download/' , json = data)
+        response = requests.post(API_ENDPOINT['api'] + url_path , json = data)
         #print(data)
     except:
         print("f response")
@@ -123,7 +123,7 @@ async def get_book(message):
         await message.channel.send("library is closed right now")
 @command('getbook-adv')
 async def getbook_adv(message):
-    url_path = "search_download/"
+    url_path = "search_links/"
     requester = message.author
     #adding user state
     if requester not in user_states:
@@ -138,7 +138,7 @@ async def getbook_adv(message):
         #requests post
         data = {"book_info" : search_string}
         try:
-            response = requests.post('http://localhost:5000/search_download/advance' , json = data)
+            response = requests.post(API_ENDPOINT['api'] + url_path, json = data)
             #print(data)
         except:
             print("f response")
@@ -157,45 +157,60 @@ async def getbook_adv(message):
 
     state.task = client.loop.create_task(process_user_query())
     return
-
 @command('pick')
 async def pick_book(message):
     error_msg = {
-        'missing' : 'Missing parameters in bot command request.',
-        'extra' : 'Too many parameters found in bot command request.',
-        'invalid' : 'Invalid choice.'
+        'invalid' : 'Too many or not enough parameters were given.' ,
+        'invalid_choice' : 'Invalid link choice.',
+        'invalid_num' : 'Please enter a number.',
+        'task' : 'There is no book links attached to you.'
     }
+    api_path = "download_url/"
     requester = message.author
-    state = user_states[requester]
-    if state.book_options:
-        parsed = message.content.split()
-        #first item should be command
-        if len(parsed) < 2:
-            await message.channel.send(error_msg['missing'])
-        elif len(parsed) > 2:
-            await message.channel.send(error_msg['extra'])
-        else:
-            choice = int(parsed[1])
-            if 0 <= choice < len(state.book_options):
-                #need to create an api end point to handle the choice-url chosen
-                user_link = state.book_options[choice-1]
-                data =  {'url':user_link}
-                response = requests.get()
-                #can reuse this portion
-                if response.status_code == 200:
-                    file_obj = discord_file_creation()
-                    try:
-                        await message.channel.send("File: ", file = file_obj)
-                    except discord.HTTPException as e:
-                        print(e)
-                    await message.channel.send(f"{message.author.mention}")
-                    requests.get('http://localhost:5000/cleanup')
-            else:
-                await message.channel.send(error_msg['invalid'])
+    try:
+        state = user_states[requester]
+    except:
+        await message.channel.send(error_msg['task'])
+        return 
+    parsed_msg = message.content.split()
+
+    '''
+    no task , not enough params , not a valid pick
+    '''
+    try:
+        an_int = int(parsed_msg[1])
+    except:
+        await message.channel.send(error_msg['invalid_num'])
+        return
+    if not state.task :
+        await message.channel.send(error_msg['task'])
+    elif len(parsed_msg) != 2: # we want botcommand at 1 and 2 is the pick
+        await message.channel.send(error_msg['invalid'])
+    elif (0 >= int(parsed_msg[1]) or int(parsed_msg[1]) > len(state.book_options)):
+        await message.channel.send(error_msg['invalid_choice'])
         
     else:
-        await message.channel.send(f'{message.author.mention} no link to choose from, run `!getbook-adv`.')
-    return
+        await message.channel.send("Sit tight.")
+        user_choice = int(parsed_msg[-1]) - 1 # convert to 0 index
+        choice_url = state.book_options[user_choice]
+        data = {'book_info' : choice_url}
+
+        response = requests.post(API_ENDPOINT['api'] + api_path , json = data)
+
+        if response.status_code == 200:
+            file_obj = discord_file_creation()
+            try:
+                await message.channel.send("File: ", file = file_obj)
+            except discord.HTTPException as e:
+                print(e)
+            await message.channel.send(f"{message.author.mention}")
+            #reset user states/tasks
+            state.task = None
+            state.book_options = []
+            requests.get('http://localhost:5000/cleanup')
+        else:
+            await message.channel.send("Bot is boinked , try again later.")
+
 @command('cancel')
 async def cancel(message):
     requester = message.author
