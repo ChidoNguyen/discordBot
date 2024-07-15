@@ -61,3 +61,4 @@ if __name__ == "__main__":
             for items in results:
                 print(items , file = f)
                 #print(items)
+        sys.exit()
