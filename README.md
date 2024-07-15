@@ -5,6 +5,8 @@
 # Features
 - Bot:
   - !getbook (main feature) : "!getbook author title" Bot will provide attached file of requested publication.
+  - !getbook-adv (main feature) : "!getbook-adv author title" Bot will provide a list of links to requested publication.
+  - !pick # (sub-main used with getbook-adv) : "!pick #" where # corresponds to link number from getbook-adv will provide attached file extracted from chosen link.
   - !tellmeajoke : Will in the future tell some funny jokes.
   - !shutdown : Restricted to owner/admin; will shut the bot down, if ran concurrently with Flask API server will also be shutdown.
   - !help : Gets you the above info.
