@@ -77,5 +77,4 @@ def search_result_data(driver):
     
     #print(*valid_links , sep = '\n')
 
-
     return valid_links
