@@ -78,7 +78,9 @@ help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
     "- **help** : what you see is what you get",
     "- **tellmeajokke** : its empty",
-    "- **getbook** : enter book details after command in any order (author title) `!getbook author title`"
+    "- **getbook** : enter book details after command in any order (author title) `!getbook author title`",
+    "- **getbook-adv** : similar to getbook but will let you pick from a list of links `!getbook-adv author title`",
+    "- **pick** : choose from a link from the list of links from !getbook-adv `!pick 3` picks link 3"
 ]
 @command('help')
 async def helper(message):
@@ -136,7 +138,7 @@ async def getbook_adv(message):
         #requests post
         data = {"book_info" : search_string}
         try:
-            response = requests.post('http://localhost:5000/search_download/' , json = data)
+            response = requests.post('http://localhost:5000/search_download/advance' , json = data)
             #print(data)
         except:
             print("f response")
@@ -154,6 +156,45 @@ async def getbook_adv(message):
         await message.channel.send(my_msg)
 
     state.task = client.loop.create_task(process_user_query())
+    return
+
+@command('pick')
+async def pick_book(message):
+    error_msg = {
+        'missing' : 'Missing parameters in bot command request.',
+        'extra' : 'Too many parameters found in bot command request.',
+        'invalid' : 'Invalid choice.'
+    }
+    requester = message.author
+    state = user_states[requester]
+    if state.book_options:
+        parsed = message.content.split()
+        #first item should be command
+        if len(parsed) < 2:
+            await message.channel.send(error_msg['missing'])
+        elif len(parsed) > 2:
+            await message.channel.send(error_msg['extra'])
+        else:
+            choice = int(parsed[1])
+            if 0 <= choice < len(state.book_options):
+                #need to create an api end point to handle the choice-url chosen
+                user_link = state.book_options[choice-1]
+                data =  {'url':user_link}
+                response = requests.get()
+                #can reuse this portion
+                if response.status_code == 200:
+                    file_obj = discord_file_creation()
+                    try:
+                        await message.channel.send("File: ", file = file_obj)
+                    except discord.HTTPException as e:
+                        print(e)
+                    await message.channel.send(f"{message.author.mention}")
+                    requests.get('http://localhost:5000/cleanup')
+            else:
+                await message.channel.send(error_msg['invalid'])
+        
+    else:
+        await message.channel.send(f'{message.author.mention} no link to choose from, run `!getbook-adv`.')
     return
 @command('cancel')
 async def cancel(message):
