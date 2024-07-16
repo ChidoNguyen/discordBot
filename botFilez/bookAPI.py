@@ -79,7 +79,8 @@ def cleanup():
         file_path = os.path.join(desired_save_dir,items)
         if os.path.isfile(file_path) and items.endswith('epub'):
             os.remove(file_path)
-    os.remove(os.path.join(desired_save_dir,'output.txt'))
+    if os.path.isfile(os.path.join(desired_save_dir,'output.txt')):
+        os.remove(os.path.join(desired_save_dir,'output.txt'))
     return "cleaned up " , 200
 
 def start_app():

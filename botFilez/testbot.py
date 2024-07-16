@@ -77,7 +77,7 @@ async def on_message(message):
 help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
     "- **help** : what you see is what you get",
-    "- **tellmeajokke** : its empty",
+    "- **tellmeajoke** : its empty",
     "- **getbook** : enter book details after command in any order (author title) `!getbook author title`",
     "- **getbook-adv** : enter book details and get a list of links to pick from with `!pick` command" ,
     "- **pick** : enter number corresponding with link `!pick 3`"

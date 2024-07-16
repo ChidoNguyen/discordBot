@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException , NoSuchElementException   
-
+from selenium.webdriver.chrome.service import Service
 
 import time
 
@@ -23,6 +23,7 @@ from discordCreds import siteURL , userID , userPASS , desired_save_dir
 #!Returns : chrome webdriver object
 ###############
 def driver_setup():
+    service = Service('/usr/bin/chromedriver')
     options = webdriver.ChromeOptions()
     #options.add_argument("--window-size=1920,1080")
     #options.add_argument("--start-maximized")
@@ -34,7 +35,7 @@ def driver_setup():
         "directory_upgrade" : True
     }
     options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Chrome(options = options)
+    driver = webdriver.Chrome(service=service,options = options)
     #driver.set_window_rect(width=1200, height=900)
     ##############
 
