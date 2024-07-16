@@ -5,9 +5,11 @@ import os
 import platform
 import json
 from discordCreds import desired_save_dir
+from werkzeug.serving import make_server
 
 app = Flask(__name__)
 env_path = './myvenv/Scripts/python' if platform.system() == 'Windows' else "python3" #for windows VSC where env is preset in settings
+server = None
 
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
@@ -79,3 +81,9 @@ def cleanup():
             os.remove(file_path)
     os.remove(os.path.join(desired_save_dir,'output.txt'))
     return "cleaned up " , 200
+
+def start_app():
+    global server
+    print("API initiating.")
+    server = make_server('127.0.0.1',5000,app)
+    server.serve_forever()
