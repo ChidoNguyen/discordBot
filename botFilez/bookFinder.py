@@ -24,6 +24,8 @@ from discordCreds import siteURL , userID , userPASS , desired_save_dir
 ###############
 def driver_setup():
     options = webdriver.ChromeOptions()
+    #options.add_argument("--window-size=1920,1080")
+    #options.add_argument("--start-maximized")
     options.add_argument("--headless")
     prefs = {
         "download.default_directory" : desired_save_dir ,
@@ -33,7 +35,7 @@ def driver_setup():
     }
     options.add_experimental_option("prefs", prefs)
     driver = webdriver.Chrome(options = options)
-
+    #driver.set_window_rect(width=1200, height=900)
     ##############
 
     driver.get(siteURL) #fill with our url
