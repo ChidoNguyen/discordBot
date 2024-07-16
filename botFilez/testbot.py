@@ -58,12 +58,7 @@ async def on_message(message):
     #pretty much always needed to ignore the bot message itself#
     if message.author == client.user:
         return
-    
-    if message.author.id == USER_ID['kkot'] :
-        await message.channel.send("Jen stinks")
-    if message.author == USER_ID['jonathan']:
-        await message.channel.send("This is a targetted ad at you Jon")
-    
+
     if message.content.startswith(COMMAND_PREFIX):
         try:
             command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
