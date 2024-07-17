@@ -17,11 +17,7 @@ def download_attempt(driver,searchLinks):
             return driver
     return driver
 def auto_download(driver):
-    #testing links#
-    #driver = webdriver.Chrome()
-    #bookURL = 'https://z-library.rs/book/17576434/03d5b2/project-hail-mary.html?dsource=recommend'
-    #driver.get(bookURL)
-    ########
+    
     try:
         download_link = None
         #this section is still fine since the download section is still viable 
@@ -63,6 +59,7 @@ def auto_download(driver):
                     download_incomplete = False
             time.sleep(1)
             timeout_sec += 1
+        print("????")
         return True
     except:
         return False

@@ -1,15 +1,17 @@
 import discord
+from discord.ext import tasks
 import discordCreds as creds
 import requests
 import os
 import json
+import time,datetime,timedelta
 
 #bot permissions#
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = discord.Client(intents=intents)
+client = discord.Client(intents=intents, heartbeat_timeout=60.0)
 
 #some housekeeping items and discord server specific for internal usage#
 GUILD = "Janitors Guild"
@@ -27,13 +29,23 @@ class UserStates :
         self.cancel_flag = False
         self.task = None
         self.book_options = []
+        self.timestamp = None
 
 def command(name):
     def decorator(func):
         commands[name] = func
         return func
     return decorator
+def clean_up_users():
+    current_time = datetime.now()
+    for ppl in user_states:
+        if ppl.timestamp != None and current_time - ppl.timestamp > timedelta(minutes=5):
+            ppl.book_options = []
+            ppl.timestamp = None
 
+@tasks.loop(minutes = 5)
+async def clean_up_tasks():
+    clean_up_users()
 ##### * * ###################
 def discord_file_creation():
     myfile = None
@@ -126,6 +138,7 @@ async def getbook_adv(message):
     if requester not in user_states:
         user_states[requester] = UserStates()
     state = user_states[requester]
+    state.timestamp = datetime.now()
 
     async def process_user_query():
         #message is the original bot command !getbook author title
@@ -147,8 +160,11 @@ async def getbook_adv(message):
         unprocessed_response_payload= json.loads(response.content)
         state.book_options = unprocessed_response_payload['data'].split()
         my_msg = ""
-        for idx,items in enumerate(state.book_options , start = 1):
-            my_msg += f'{idx}. <{items}>\n'
+        if not state.book_options:
+            my_msg = "No results were found."
+        else:
+            for idx,items in enumerate(state.book_options , start = 1):
+                my_msg += f'{idx}. <{items}>\n'
         
         await message.channel.send(my_msg)
 
@@ -222,6 +238,7 @@ async def kill_it(message):
         await client.close()
     else:
         print(f'Stop it {message.author}.')
+
 def run_bot():       
     client.run(creds.myDiscordCreds)
 
