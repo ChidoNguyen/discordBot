@@ -4,7 +4,7 @@ import discordCreds as creds
 import requests
 import os
 import json
-import time,datetime,timedelta
+import time,datetime
 
 #bot permissions#
 intents = discord.Intents.default()
@@ -39,7 +39,7 @@ def command(name):
 def clean_up_users():
     current_time = datetime.now()
     for ppl in user_states:
-        if ppl.timestamp != None and current_time - ppl.timestamp > timedelta(minutes=5):
+        if ppl.timestamp != None and current_time - ppl.timestamp > datetime.timedelta(minutes=5):
             ppl.book_options = []
             ppl.timestamp = None
 
@@ -127,9 +127,12 @@ async def get_book(message):
         finally:
             await message.channel.send(f"{message.author.mention}")
             requests.get('http://localhost:5000/cleanup')
+    elif response.status_code == 405:
+        print(response.text)
+        await message.channel.send(f'Download limit reached.')
     else:
         print(response.text)
-        await message.channel.send(f'{response.text}')
+        await message.channel.send(f'Failed to !getbook.')
 @command('getbook-adv')
 async def getbook_adv(message):
     url_path = "search_links/"
@@ -138,7 +141,7 @@ async def getbook_adv(message):
     if requester not in user_states:
         user_states[requester] = UserStates()
     state = user_states[requester]
-    state.timestamp = datetime.now()
+    state.timestamp = datetime.datetime.now()
 
     async def process_user_query():
         #message is the original bot command !getbook author title
@@ -221,8 +224,12 @@ async def pick_book(message):
             state.task = None
             state.book_options = []
             requests.get('http://localhost:5000/cleanup')
+        elif response.status_code == 405:
+            print(response.text)
+            await message.channel.send(f'Download limit reached.')
         else:
-            await message.channel.send("Bot is boinked , try again later.")
+            print(response.text)
+            await message.channel.send(f'Failed to get book.')
 
 @command('cancel')
 async def cancel(message):

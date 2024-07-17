@@ -35,7 +35,7 @@ def automated_book_download():
         chrome_Driver_Login = login(chrome_Driver_Init)
         save_cookies(chrome_Driver_Login)
     #### !Need to add a 10/10 download limit check ###
-    if max_limit(chrome_Driver_Login):
+    if sys.argv[-1] != 'listings' and max_limit(chrome_Driver_Login):
         print("Download limit reached")
         sys.exit(10)
 

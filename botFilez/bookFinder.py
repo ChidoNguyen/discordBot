@@ -27,7 +27,7 @@ def driver_setup():
     options = webdriver.ChromeOptions()
     #options.add_argument("--window-size=1920,1080")
     #options.add_argument("--start-maximized")
-    #options.add_argument("--headless")
+    options.add_argument("--headless")
     #options.add_argument('--disable-gpu')
     prefs = {
         "download.default_directory" : desired_save_dir ,

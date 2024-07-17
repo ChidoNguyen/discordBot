@@ -27,8 +27,10 @@ def search_download():
     return_code = result_queue.get()
     if return_code == 0:
         return "Search and download succesful." , 200
+    elif return_code == 10:
+        return "Download limit reached." , 405
     else:
-        return "Search  and download failed." , 204
+        return "Search and download failed." , 204
     ##outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
     #print(outcome.check_returncode, outcome.stdout, outcome.stderr)
     # if outcome.returncode == 0:
@@ -80,6 +82,12 @@ def download_url():
             'response' : 'Download was succesful with given URL.'
         }
         status_code = 200
+    elif outcome.returncode == 10:
+        response = {
+            'status' : 'Failed',
+            'response' : 'Download limit reached.'
+        }
+        status_code = 405
     else:
         response = {
                 'status' : 'Failed',
