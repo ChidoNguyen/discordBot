@@ -16,7 +16,7 @@ def sd_subprocess(book_details,result_queue):
     sub_com_args = [env_path , 'bookBot.py', book_details , 'auto']
     outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
     result_queue.put(outcome.returncode)
-    
+
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
     book_details = request.json['book_info']
@@ -98,7 +98,4 @@ def cleanup():
     return "cleaned up " , 200
 
 def start_app():
-    global server
-    print("API initiating.")
-    server = make_server('127.0.0.1',5000,app)
-    server.serve_forever()
+    app.run()
