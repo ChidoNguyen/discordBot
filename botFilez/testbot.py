@@ -43,7 +43,6 @@ def discord_file_creation():
     joined_path = os.path.join(creds.desired_save_dir , myfile)
     with open(joined_path , 'rb') as discordFile:
         attached_file = discord.File(fp = discordFile , filename=myfile)
-    discordFile.close()
     return attached_file
 #on ready for when the bot has successfully joined a server/guild
 @client.event
@@ -114,7 +113,6 @@ async def get_book(message):
         except discord.HTTPException as e:
             print(e)
         finally:
-            file_obj.close()
             await message.channel.send(f"{message.author.mention}")
             requests.get('http://localhost:5000/cleanup')
     else:
