@@ -16,7 +16,7 @@ import platform
 import linkProcessing as downProc
 from searchResult import search_input
 from discordCreds import siteURL , userID , userPASS , desired_save_dir
-
+from limit_check import download_history , limit_check
 ####setup######
 #initialize our chrome driver with preferences/options
 #?Params : None
@@ -104,4 +104,6 @@ def login(driver):
 
 
 if __name__ == '__main__':
-    login(driver_setup())
+    mydrive = login(driver_setup())
+    
+    limit_check(download_history(mydrive))

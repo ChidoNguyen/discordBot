@@ -7,6 +7,7 @@ from bookFinder import driver_setup , login
 from searchResult import search_input , search_result_data
 from linkProcessing import download_attempt , auto_download
 from botCookies import cookie_epoch , load_cookies , save_cookies
+from limit_check import max_limit
 from discordCreds import desired_save_dir
 '''
 Initializes our chrome webdriver to automate the download process 
@@ -33,6 +34,11 @@ def automated_book_download():
     else:
         chrome_Driver_Login = login(chrome_Driver_Init)
         save_cookies(chrome_Driver_Login)
+    #### !Need to add a 10/10 download limit check ###
+    if max_limit(chrome_Driver_Login):
+        print("Download limit reached")
+        sys.exit(10)
+
     #if not url we need to search for both auto and listings
     if sys.argv[-1] != 'url':
         chrome_Driver_Search = search_input(chrome_Driver_Login , desired_book)

@@ -59,7 +59,6 @@ def auto_download(driver):
                     download_incomplete = False
             time.sleep(1)
             timeout_sec += 1
-        print("????")
         return True
     except:
         return False
