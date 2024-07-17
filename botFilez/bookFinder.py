@@ -28,6 +28,7 @@ def driver_setup():
     #options.add_argument("--window-size=1920,1080")
     #options.add_argument("--start-maximized")
     options.add_argument("--headless")
+    options.add_argument('--disable-gpu')
     prefs = {
         "download.default_directory" : desired_save_dir ,
         "savefile.default_directory" : desired_save_dir , 
@@ -37,6 +38,8 @@ def driver_setup():
     options.add_experimental_option("prefs", prefs)
     if platform.system() == 'Linux':
         service = Service('/usr/bin/chromedriver')
+        options.binary_location('/usr/bin/chromium-browser')
+        options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=service,options = options)
     else:
         driver = webdriver.Chrome(options=options)
