@@ -129,10 +129,10 @@ async def get_book(message):
             requests.get('http://localhost:5000/cleanup')
     elif response.status_code == 405:
         print(response.text)
-        await message.channel.send(f'Download limit reached.')
+        await message.channel.send(f'Download limit reached. {requester.mention}')
     else:
         print(response.text)
-        await message.channel.send(f'Failed to !getbook.')
+        await message.channel.send(f'Failed to !getbook : {search_string} {requester.mention}')
 @command('getbook-adv')
 async def getbook_adv(message):
     url_path = "search_links/"
