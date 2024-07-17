@@ -84,13 +84,13 @@ def login(driver):
     #same outcome as By.ID but potentially slower and our project is not that intensive
     #navBar = driver.find_element(By.XPATH, "//*[@id = 'profileMenu']")
 
-    try:
-        navBarById = driver.find_element(By.ID , "profileMenu")
-        navBarById.click()
-    except NoSuchElementException:
-        print("No Element")
-    except TimeoutException:
-        print("Timed Out")
+    # try:
+    #     navBarById = driver.find_element(By.ID , "profileMenu")
+    #     navBarById.click()
+    # except NoSuchElementException:
+    #     print("No Element")
+    # except TimeoutException:
+    #     print("Timed Out")
 
     #######################
     # Logged Verification #
@@ -103,4 +103,5 @@ def login(driver):
     
 
 
-
+if __name__ == '__main__':
+    login(driver_setup())
