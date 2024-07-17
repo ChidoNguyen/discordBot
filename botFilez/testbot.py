@@ -43,6 +43,7 @@ def discord_file_creation():
     joined_path = os.path.join(creds.desired_save_dir , myfile)
     with open(joined_path , 'rb') as discordFile:
         attached_file = discord.File(fp = discordFile , filename=myfile)
+    discordFile.close()
     return attached_file
 #on ready for when the bot has successfully joined a server/guild
 @client.event
@@ -88,6 +89,7 @@ async def tell_joke(message):
 # todo : HANDLE FILE LARGE EXCEPTION
 @command('getbook')
 async def get_book(message):
+    await message.channel.send('\U0001F50E')
     url_path = "search_download/"
     requester = message.author
     #adding user state
@@ -111,11 +113,13 @@ async def get_book(message):
             await message.channel.send("File: ", file = file_obj)
         except discord.HTTPException as e:
             print(e)
-        await message.channel.send(f"{message.author.mention}")
-        requests.get('http://localhost:5000/cleanup')
+        finally:
+            file_obj.close()
+            await message.channel.send(f"{message.author.mention}")
+            requests.get('http://localhost:5000/cleanup')
     else:
-        print("something went wrong")
-        await message.channel.send("library is closed right now")
+        print(response.text)
+        await message.channel.send(f'{response.text}')
 @command('getbook-adv')
 async def getbook_adv(message):
     url_path = "search_links/"
