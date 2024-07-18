@@ -41,6 +41,7 @@ class UserStates :
         self.task = None
         self.book_options = []
         self.timestamp = None
+        self.locked = False
 
 
 def clean_up_users():
@@ -50,6 +51,14 @@ def clean_up_users():
             ppl.book_options = []
             ppl.timestamp = None
 
+def isLocked(state):
+    return state.locked
+def userLock(state):
+    state.locked = True
+    return
+def userUnlock(state):
+    state.locked = False
+    return
 @tasks.loop(minutes = 5)
 async def clean_up_tasks():
     clean_up_users()
@@ -67,7 +76,16 @@ async def on_message(message):
     #pretty much always needed to ignore the bot message itself#
     if message.author == client.user:
         return
-
+    
+    requester = message.author
+    if requester not in user_states:
+        user_states[requester] = UserStates()
+    state = user_states[requester]
+    if isLocked(state):
+        await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
+        return
+    #if not lock we lock
+    userLock(state)
     if message.content.startswith(COMMAND_PREFIX):
         try:
             command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
@@ -77,7 +95,7 @@ async def on_message(message):
                 await command_func(message)
         except discord.DiscordException as e:
             print(e)
-
+    userUnlock(state)
 help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
     "- **help** : what you see is what you get",
@@ -103,37 +121,25 @@ def task_clear(state):
 async def get_book(message):
     await message.channel.send('\U0001F50E')
     requester = message.author
-
-    if requester not in user_states:
-        user_states[requester] = UserStates()
-    state = user_states[requester]
-    
-    if not single_task_limit(state):
-        await message.channel.send(f'One book at a time you greedy goblin. {requester.mention}')
-        return
-    
+  
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     
     #hoping this unblocks the discord bot from timing out while waiting for it to finish
     future = executor.submit(download_book,search_string,requester)
-    state.task = await client.loop.run_in_executor(None , future.result)
-    result = state.task
+    result = await client.loop.run_in_executor(None , future.result)
     if isinstance(result , tuple):
         file_obj , msg = result
         await message.channel.send("File: ", file=file_obj)
         await message.channel.send(msg)
     else:
         await message.channel.send(result)
-    task_clear(state)
     requests.get(API_ENDPOINT['cleanup'])
 
 @command('getbook-adv')
 async def getbook_adv(message):
     #url_path = "search_links/"
     requester = message.author
-    if requester not in user_states:
-        user_states[requester] = UserStates()
     #saving timestamp for future cleanup usage(?)
     state = user_states[requester]
     state.timestamp = datetime.datetime.now()
@@ -191,7 +197,6 @@ async def pick_book(message):
             state.book_options = []
         else:
             await message.channel.send(result)
-    task_clear(state)
     requests.get(API_ENDPOINT['cleanup'])
 
 @command('cancel')
