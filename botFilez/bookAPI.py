@@ -63,6 +63,12 @@ def search_links():
                 'data' : 'bad file or empty'
             }
             status_code = 404
+    elif outcome.returncode == 10:
+        response = {
+            'response' : 'failed',
+            'data' : 'Download limit reached.'
+        }
+        status_code = 405
     else:
         response = {
             'status' : 'Failed',
