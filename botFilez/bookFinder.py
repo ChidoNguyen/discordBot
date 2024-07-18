@@ -25,8 +25,8 @@ from limit_check import download_history , limit_check
 def driver_setup():
     
     options = webdriver.ChromeOptions()
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--start-maximized")
+    #options.add_argument("--window-size=1920,1080")
+    #options.add_argument("--start-maximized")
     options.add_argument("--headless")
     #options.add_argument('--disable-gpu')
     prefs = {
