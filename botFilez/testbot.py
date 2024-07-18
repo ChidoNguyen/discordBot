@@ -25,8 +25,8 @@ API_ENDPOINT = {
         }
 ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido','book-club']
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
+
 COMMAND_PREFIX = "!"
-#commands
 commands ={}
 def command(name):
     def decorator(func):
@@ -53,17 +53,7 @@ def clean_up_users():
 @tasks.loop(minutes = 5)
 async def clean_up_tasks():
     clean_up_users()
-##### * * ###################
-def discord_file_creation():
-    myfile = None
-    for items in os.listdir(creds.desired_save_dir):
-        if items.endswith('epub'):
-            myfile = items
-    joined_path = os.path.join(creds.desired_save_dir , myfile)
-    with open(joined_path , 'rb') as discordFile:
-        attached_file = discord.File(fp = discordFile , filename=myfile)
-    return attached_file
-#on ready for when the bot has successfully joined a server/guild
+
 @client.event
 async def on_ready():
     #guild = discord.utils.find(lambda g : g.name == "Janitors Guild" , client.guilds)
@@ -100,28 +90,44 @@ help_commands = [
 async def helper(message):
     multi_line_msg = "\n".join(help_commands)
     await message.channel.send(multi_line_msg)
+
+def single_task_limit(state):
+    if state.task == None:
+        return True
+    return False
+
+def task_clear(state):
+    state.task = None
+
 @command('getbook')
 async def get_book(message):
     await message.channel.send('\U0001F50E')
     requester = message.author
+
+    if requester not in user_states:
+        user_states[requester]
+    state = user_states[requester]
+    
+    if not single_task_limit(state):
+        await message.channel.send(f'One book at a time you greedy goblin. {requester.mention}')
+        return
+    
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     
     #hoping this unblocks the discord bot from timing out while waiting for it to finish
     future = executor.submit(download_book,search_string,requester)
-    result = await client.loop.run_in_executor(None , future.result)
-    
+    state.task = await client.loop.run_in_executor(None , future.result)
+    result = state.task
     if isinstance(result , tuple):
         file_obj , msg = result
         await message.channel.send("File: ", file=file_obj)
         await message.channel.send(msg)
     else:
         await message.channel.send(result)
-    requests.get('http://localhost:5000/cleanup')
+    task_clear(state)
+    requests.get(API_ENDPOINT['cleanup'])
 
-@command('tellmeajoke')
-async def tell_joke(message):
-    await message.channel.send(f"look in the mirror {message.author.mention}!")
 @command('getbook-adv')
 async def getbook_adv(message):
     #url_path = "search_links/"
@@ -139,36 +145,7 @@ async def getbook_adv(message):
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
     await message.channel.send(result)
-    # async def process_user_query():
-    #     #message is the original bot command !getbook author title
-    #     message_parsed = message.content.split()
-    #     #ignore the first item
-    #     search_string = ' '.join(message_parsed[1:])
-    #     #requests post
-    #     data = {"book_info" : search_string}
-    #     try:
-    #         response = requests.post(API_ENDPOINT['api'] + url_path, json = data)
-    #         #print(data)
-    #     except:
-    #         print("f response")
 
-    #     if state.cancel_flag == True:
-    #         await message.channel.send("Book request canned.")
-    #         return
-        
-    #     unprocessed_response_payload= json.loads(response.content)
-    #     state.book_options = unprocessed_response_payload['data'].split()
-    #     my_msg = ""
-    #     if not state.book_options:
-    #         my_msg = "No results were found."
-    #     else:
-    #         for idx,items in enumerate(state.book_options , start = 1):
-    #             my_msg += f'{idx}. <{items}>\n'
-        
-    #     await message.channel.send(my_msg)
-
-    # state.task = client.loop.create_task(process_user_query())
-    # return
 @command('pick')
 async def pick_book(message):
     error_msg = {
@@ -214,27 +191,8 @@ async def pick_book(message):
             state.book_options = []
         else:
             await message.channel.send(result)
+    task_clear(state)
     requests.get(API_ENDPOINT['cleanup'])
-###############
-        # response = requests.post(API_ENDPOINT['api'] + api_path , json = data)
-
-        # if response.status_code == 200:
-        #     file_obj = discord_file_creation()
-        #     try:
-        #         await message.channel.send("File: ", file = file_obj)
-        #     except discord.HTTPException as e:
-        #         print(e)
-        #     await message.channel.send(f"{message.author.mention}")
-        #     #reset user states/tasks
-        #     state.task = None
-        #     state.book_options = []
-        #     requests.get('http://localhost:5000/cleanup')
-        # elif response.status_code == 405:
-        #     print(response.text)
-        #     await message.channel.send(f'Download limit reached.')
-        # else:
-        #     print(response.text)
-        #     await message.channel.send(f'Failed to get book.')
 
 @command('cancel')
 async def cancel(message):
@@ -242,7 +200,9 @@ async def cancel(message):
     if requester in user_states and user_states[requester].task:
         user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
-
+@command('tellmeajoke')
+async def tell_joke(message):
+    await message.channel.send(f"look in the mirror {message.author.mention}!")
 @command('shutdown')
 async def kill_it(message):
     if message.author.id == creds.adminID:
