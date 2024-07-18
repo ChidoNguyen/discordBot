@@ -105,7 +105,7 @@ async def get_book(message):
     requester = message.author
 
     if requester not in user_states:
-        user_states[requester]
+        user_states[requester] = UserStates()
     state = user_states[requester]
     
     if not single_task_limit(state):
