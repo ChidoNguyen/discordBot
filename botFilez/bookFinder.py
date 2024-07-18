@@ -38,7 +38,7 @@ def driver_setup():
     options.add_experimental_option("prefs", prefs)
     if platform.system() in ['Linux']:
         service = Service('/usr/bin/chromedriver')
-        options.binary_location('/usr/bin/chromium-browser')
+        #options.binary_location('/usr/bin/chromium-browser')
         options.add_argument('--disable-dev-shm-usage')
         driver = webdriver.Chrome(service=service,options = options)
     else:
