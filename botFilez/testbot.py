@@ -5,6 +5,7 @@ import requests
 import os
 import json
 import time,datetime
+import concurrent.futures
 
 #bot permissions#
 intents = discord.Intents.default()
@@ -12,6 +13,8 @@ intents.message_content = True
 intents.members = True
 
 client = discord.Client(intents=intents, heartbeat_timeout=60.0)
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+
 
 #some housekeeping items and discord server specific for internal usage#
 GUILD = "Janitors Guild"
@@ -93,13 +96,58 @@ help_commands = [
 async def helper(message):
     multi_line_msg = "\n".join(help_commands)
     await message.channel.send(multi_line_msg)
+@command('getbook')
+async def get_book(message):
+    #basic info
+    #requester = message.author
+    url_path = "search_download/"
+    
+    #send basic message for user experience knowing bot is doing something
+    await message.channel.send('\U0001F50E')
+    
+    #parse message info
+    #who
+    requester = message.author
+    #what was sent
+    parsed_msg = message.content.split() #split by white spaces
+    #ignore the bot command which is first item in parsed_msg
+    search_string = ' '.join(parsed_msg[1:])
+    
+    def download_book(search_str): #hopefully prevents blocking of discord heartbeat 
+        data = {"book_info" : search_str}
+        try:
+            response = requests.post(API_ENDPOINT['api'] + url_path, json=data)
+        except:
+            print(response.text)
+        
+        if response.status_code == 200:
+            file_obj = discord_file_creation()
+            return file_obj , f"{requester.mention}"
+        elif response.status_code == 405:
+            return f'Download limit reached. {requester.mention}'
+        else:
+            return f'Failed to get book: {search_str} {requester.mention}'
+    
+    
+    future = executor.submit(download_book,search_string) #run in sep. thread
+    
+    result = await client.loop.run_in_executor(None , future.result)
+    
+    if isinstance(result , tuple):
+        #if our result comes back with file + message aka a tuble
+        file_obj , msg = result
+        await message.channel.send("File: ", file=file_obj)
+        await message.channel.send(msg)
+    else:
+        await message.channel.send(result)
+    requests.get('http://localhost:5000/cleanup')
 
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
 # todo : HANDLE FILE LARGE EXCEPTION
-@command('getbook')
-async def get_book(message):
+@command('getbook1')
+async def get_book1(message):
     await message.channel.send('\U0001F50E')
     url_path = "search_download/"
     requester = message.author
