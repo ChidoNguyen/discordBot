@@ -12,6 +12,7 @@ from bot_command_subprocess import download_book , search_results , search_resul
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.guilds = True
 
 client = discord.Client(intents=intents, heartbeat_timeout=60.0)
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
@@ -96,6 +97,24 @@ async def on_message(message):
         except discord.DiscordException as e:
             print(e)
     userUnlock(state)
+
+@command('thread_test')
+async def thread_me(message):
+    guild = discord.utils.get(client.guilds, name = GUILD)
+
+    bot_member = guild.get_member(client.user.id)
+    if not bot_member:
+        print('Bot member not found in guild')
+        return
+    
+    # # Check guild-wide permissions
+    # if bot_member.guild_permissions.create_public_threads:
+    #     print('The bot has the CREATE_PUBLIC_THREADS permission in this guild.')
+    # else:
+    #     print('The bot does not have the CREATE_PUBLIC_THREADS permission in this guild.')
+    mythread = await message.channel.create_thread(name = message.content , auto_archive_duration = 60 , message = message)
+    await mythread.send("something")
+
 help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
     "- **help** : what you see is what you get",
@@ -121,7 +140,7 @@ def task_clear(state):
 async def get_book(message):
     await message.channel.send('\U0001F50E')
     requester = message.author
-  
+    
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     
@@ -129,9 +148,17 @@ async def get_book(message):
     future = executor.submit(download_book,search_string,requester)
     result = await client.loop.run_in_executor(None , future.result)
     if isinstance(result , tuple):
+        #make thread
+        reply_thread = await message.channel.create_thread(
+            name =f'{message.content}',
+            message = message,
+            auto_archive_duration = 60
+        )
         file_obj , msg = result
-        await message.channel.send("File: ", file=file_obj)
-        await message.channel.send(msg)
+        await reply_thread.send("File: ", file=file_obj)
+        await reply_thread.send(msg)
+        # await message.channel.send("File: ", file=file_obj)
+        # await message.channel.send(msg)
     else:
         await message.channel.send(result)
     requests.get(API_ENDPOINT['cleanup'])
@@ -215,6 +242,7 @@ async def kill_it(message):
         await client.close()
     else:
         print(f'Stop it {message.author}.')
+        await message.channel.send(f'Stop it {message.author}')
 
 def run_bot():       
     client.run(creds.myDiscordCreds)
