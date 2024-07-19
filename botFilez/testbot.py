@@ -174,10 +174,18 @@ async def getbook_adv(message):
     parse_message = message.content.split()
     search_string = ' '.join(parse_message[1:])
 
+    reply_thread = await message.channel.create_thread(
+        name =f'{message.content}',
+        message = message,
+        auto_archive_duration = 60
+    )
+
+
     future = executor.submit(search_results,search_string,requester,state)
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
-    await message.channel.send(result)
+    #await message.channel.send(result)
+    await reply_thread.send(result)
 
 @command('pick')
 async def pick_book(message):
@@ -188,12 +196,17 @@ async def pick_book(message):
         'task' : 'There is no book links attached to you.'
     }
 
+    reply_thread = await message.channel.create_thread(
+            name =f'{message.content}',
+            message = message,
+            auto_archive_duration = 60
+        )
     requester = message.author
     #check if user has ran a listings request yet
     try:
         state = user_states[requester]
     except:
-        await message.channel.send(error_msg['task'])
+        await reply_thread.send(error_msg['task'])
         return 
     parsed_msg = message.content.split()
 
@@ -203,27 +216,27 @@ async def pick_book(message):
     try:
         an_int = int(parsed_msg[1])
     except:
-        await message.channel.send(error_msg['invalid_num'])
+        await reply_thread.send(error_msg['invalid_num'])
         return
     if not state.task :
-        await message.channel.send(error_msg['task'])
+        await reply_thread.send(error_msg['task'])
     elif len(parsed_msg) != 2: # we want botcommand at 1 and 2 is the pick
-        await message.channel.send(error_msg['invalid'])
+        await reply_thread.send(error_msg['invalid'])
     elif (0 >= int(parsed_msg[1]) or int(parsed_msg[1]) > len(state.book_options)):
-        await message.channel.send(error_msg['invalid_choice'])
+        await reply_thread.send(error_msg['invalid_choice'])
     else:
-        await message.channel.send("Sit tight.")
+        await reply_thread.send("Sit tight.")
         user_choice = int(parsed_msg[-1]) - 1 # convert to 0 index
         future = executor.submit(search_results_download,user_choice,requester,state)
         result = await client.loop.run_in_executor(None, future.result)
         if isinstance(result, tuple):
             f , msg = result
-            await message.channel.send("File: ", file=f)
-            await message.channel.send(msg)
+            await reply_thread.send("File: ", file=f)
+            await reply_thread.send(msg)
             state.task = None
             state.book_options = []
         else:
-            await message.channel.send(result)
+            await reply_thread.send(result)
     requests.get(API_ENDPOINT['cleanup'])
 
 @command('cancel')
