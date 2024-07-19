@@ -195,12 +195,7 @@ async def pick_book(message):
         'invalid_num' : 'Please enter a number.',
         'task' : 'There is no book links attached to you.'
     }
-
-    reply_thread = await message.channel.create_thread(
-            name =f'{message.content}',
-            message = message,
-            auto_archive_duration = 60
-        )
+    reply_thread = message.thread
     requester = message.author
     #check if user has ran a listings request yet
     try:
