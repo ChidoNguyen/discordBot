@@ -135,25 +135,19 @@ def single_task_limit(state):
 
 def task_clear(state):
     state.task = None
-async def thread_creation(message):
-    reply_thread = await message.channel.create_thread(
-            name =f'{message.content}',
-            message = message,
-            auto_archive_duration = 60
-        )
-    return reply_thread
+
 @command('getbook')
 async def get_book(message):
     requester = message.author
     
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
-    # reply_thread = await message.channel.create_thread(
-    #         name =f'{message.content}',
-    #         message = message,
-    #         auto_archive_duration = 60
-    #     )
-    reply_thread = thread_creation(message)
+    reply_thread = await message.channel.create_thread(
+            name =f'{message.content}',
+            message = message,
+            auto_archive_duration = 60
+        )
+
     await reply_thread.send('\U0001F50E')
     #hoping this unblocks the discord bot from timing out while waiting for it to finish
     future = executor.submit(download_book,search_string,requester)
