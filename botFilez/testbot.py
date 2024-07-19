@@ -196,7 +196,7 @@ async def pick_book(message):
         'task' : 'There is no book links attached to you.'
     }
     reply_thread = message.thread
-    requester = message.author
+    requester = message.fetch_thread
     #check if user has ran a listings request yet
     try:
         state = user_states[requester]
