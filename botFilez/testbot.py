@@ -138,12 +138,16 @@ def task_clear(state):
 
 @command('getbook')
 async def get_book(message):
-    await message.channel.send('\U0001F50E')
     requester = message.author
     
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
-    
+    reply_thread = await message.channel.create_thread(
+            name =f'{message.content}',
+            message = message,
+            auto_archive_duration = 60
+        )
+    await reply_thread.send('\U0001F50E')
     #hoping this unblocks the discord bot from timing out while waiting for it to finish
     future = executor.submit(download_book,search_string,requester)
     result = await client.loop.run_in_executor(None , future.result)
