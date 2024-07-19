@@ -195,8 +195,8 @@ async def pick_book(message):
         'invalid_num' : 'Please enter a number.',
         'task' : 'There is no book links attached to you.'
     }
-    reply_thread = message.thread
-    requester = message.fetch_thread
+    reply_thread = message.fetch_thread
+    requester = message.author
     #check if user has ran a listings request yet
     try:
         state = user_states[requester]
