@@ -6,6 +6,7 @@ import os
 import json
 import time,datetime
 import concurrent.futures
+import random
 
 from bot_command_subprocess import download_book , search_results , search_results_download
 #bot permissions#
@@ -241,6 +242,16 @@ async def cancel(message):
     if requester in user_states and user_states[requester].task:
         user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
+@command('roll')
+async def roll(message):
+    bot , top = 0 , 100
+    rng = random.randint(bot,top)
+    if rng < 80 :
+        await message.channel.send(f"Jon's unlucky touch got you {rng}.")
+    else:
+        await message.channel.send(f"Jon's lucky touch got you {rng}.")
+    return
+
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
