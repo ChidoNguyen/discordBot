@@ -143,7 +143,7 @@ async def get_book(message):
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     reply_thread = await message.channel.create_thread(
-            name =f'{message.content}',
+            name =f'{message.author} book request thread.',
             message = message,
             auto_archive_duration = 60
         )
@@ -175,16 +175,17 @@ async def getbook_adv(message):
     search_string = ' '.join(parse_message[1:])
 
     reply_thread = await message.channel.create_thread(
-        name =f'{message.content}',
+        name =f'{message.author} book request thread.',
         message = message,
         auto_archive_duration = 60
     )
-
+    reply_thread.send("Working on it.")
 
     future = executor.submit(search_results,search_string,requester,state)
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
     #await message.channel.send(result)
+    
     await reply_thread.send(result)
 
 @command('pick')
@@ -195,8 +196,13 @@ async def pick_book(message):
         'invalid_num' : 'Please enter a number.',
         'task' : 'There is no book links attached to you.'
     }
-    reply_thread = message.fetch_thread()
+    reply_thread = message.channel
     requester = message.author
+
+    if not isinstance(reply_thread, discord.Thread):
+        await message.channel.send(f'Pick in the book request thread. {requester.mention}')
+        return
+    
     #check if user has ran a listings request yet
     try:
         state = user_states[requester]
