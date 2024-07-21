@@ -88,6 +88,11 @@ async def on_message(message):
     #if not lock we lock
     userLock(state)
     if message.content.startswith(COMMAND_PREFIX):
+        if isLocked(state):
+            await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
+            return
+    #if not lock we lock
+        userLock(state)
         try:
             command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
             #parses the text after our prefix !text => text after
@@ -96,7 +101,7 @@ async def on_message(message):
                 await command_func(message)
         except discord.DiscordException as e:
             print(e)
-    userUnlock(state)
+        userUnlock(state)
 
 @command('thread_test')
 async def thread_me(message):
@@ -195,7 +200,7 @@ async def pick_book(message):
         'invalid_num' : 'Please enter a number.',
         'task' : 'There is no book links attached to you.'
     }
-    reply_thread = message.fetch_thread()
+    reply_thread = message.thread
     requester = message.author
     #check if user has ran a listings request yet
     try:
