@@ -16,7 +16,9 @@ def sd_subprocess(book_details,result_queue):
     sub_com_args = [env_path , 'bookBot.py', book_details , 'auto']
     outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
     result_queue.put(outcome.returncode)
-
+@app.route('/' , methods = ['GET'])
+def online():
+    return "Online" , 200
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
     book_details = request.json['book_info']

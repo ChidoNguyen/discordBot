@@ -6,6 +6,7 @@ import os
 import json
 import time,datetime
 import concurrent.futures
+import random
 
 from bot_command_subprocess import download_book , search_results , search_results_download
 #bot permissions#
@@ -24,7 +25,10 @@ API_ENDPOINT = {
     'api' : "http://localhost:5000/",
     'cleanup' : "http://localhost:5000/cleanup/"
         }
-ALLOWED_CHANNEL = ['im-testing-shit-ignore-me-chido','book-club']
+ALLOWED_CHANNEL = [
+    1264315012877389975 , #test channel
+    877784047722569728 # book club
+]
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
 
 COMMAND_PREFIX = "!"
@@ -77,16 +81,13 @@ async def on_message(message):
     #pretty much always needed to ignore the bot message itself#
     if message.author == client.user:
         return
-    
+    #restrict channels
+
     requester = message.author
     if requester not in user_states:
         user_states[requester] = UserStates()
     state = user_states[requester]
-    if isLocked(state):
-        await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
-        return
-    #if not lock we lock
-    userLock(state)
+
     if message.content.startswith(COMMAND_PREFIX):
         if isLocked(state):
             await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
@@ -96,6 +97,7 @@ async def on_message(message):
         try:
             command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
             #parses the text after our prefix !text => text after
+            print(f'{requester} : {command_name}')
             command_func = commands.get(command_name)
             if command_func:
                 await command_func(message)
@@ -103,22 +105,7 @@ async def on_message(message):
             print(e)
         userUnlock(state)
 
-@command('thread_test')
-async def thread_me(message):
-    guild = discord.utils.get(client.guilds, name = GUILD)
 
-    bot_member = guild.get_member(client.user.id)
-    if not bot_member:
-        print('Bot member not found in guild')
-        return
-    
-    # # Check guild-wide permissions
-    # if bot_member.guild_permissions.create_public_threads:
-    #     print('The bot has the CREATE_PUBLIC_THREADS permission in this guild.')
-    # else:
-    #     print('The bot does not have the CREATE_PUBLIC_THREADS permission in this guild.')
-    mythread = await message.channel.create_thread(name = message.content , auto_archive_duration = 60 , message = message)
-    await mythread.send("something")
 
 help_commands = [
     "- All bot commands should start with ! and have no spaces after `!help` ",
@@ -148,7 +135,7 @@ async def get_book(message):
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     reply_thread = await message.channel.create_thread(
-            name =f'{message.content}',
+            name =f'{message.author} book request thread.',
             message = message,
             auto_archive_duration = 60
         )
@@ -180,16 +167,17 @@ async def getbook_adv(message):
     search_string = ' '.join(parse_message[1:])
 
     reply_thread = await message.channel.create_thread(
-        name =f'{message.content}',
+        name =f'{message.author} book request thread.',
         message = message,
         auto_archive_duration = 60
     )
-
+    await reply_thread.send("Working on it.")
 
     future = executor.submit(search_results,search_string,requester,state)
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
     #await message.channel.send(result)
+    
     await reply_thread.send(result)
 
 @command('pick')
@@ -200,14 +188,24 @@ async def pick_book(message):
         'invalid_num' : 'Please enter a number.',
         'task' : 'There is no book links attached to you.'
     }
-    reply_thread = message.thread
+    reply_thread = message.channel
     requester = message.author
+    #### error flow###
+    #no task -> wrong channel -> invalid inputs
+    if requester not in user_states or user_states[requester].task == None:
+        await message.channel.send(f"{error_msg['task']} Run !getbook-adv")
+        return
+    elif not isinstance(reply_thread, discord.Thread):
+        await message.delete()
+        await message.channel.send(f'Pick in the book request thread. {requester.mention}' , delete_after = 5)
+        return
+    
     #check if user has ran a listings request yet
-    try:
-        state = user_states[requester]
-    except:
-        await reply_thread.send(error_msg['task'])
-        return 
+    # try:
+    state = user_states[requester]
+    # except:
+    #     await reply_thread.send(error_msg['task'])
+    #     return 
     parsed_msg = message.content.split()
 
     '''
@@ -218,9 +216,9 @@ async def pick_book(message):
     except:
         await reply_thread.send(error_msg['invalid_num'])
         return
-    if not state.task :
-        await reply_thread.send(error_msg['task'])
-    elif len(parsed_msg) != 2: # we want botcommand at 1 and 2 is the pick
+    # if not state.task :
+    #     await reply_thread.send(error_msg['task'])
+    if len(parsed_msg) != 2: # we want botcommand at 1 and 2 is the pick
         await reply_thread.send(error_msg['invalid'])
     elif (0 >= int(parsed_msg[1]) or int(parsed_msg[1]) > len(state.book_options)):
         await reply_thread.send(error_msg['invalid_choice'])
@@ -245,9 +243,44 @@ async def cancel(message):
     if requester in user_states and user_states[requester].task:
         user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
+@command('roll')
+async def roll(message):
+    bot , top = 0 , 100
+    rng = random.randint(bot,top)
+    if rng < 80 :
+        await message.channel.send(f"Jon's unlucky touch got you {rng}.")
+    else:
+        await message.channel.send(f"Jon's lucky touch got you {rng}.")
+    return
+
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
+@command('cleanup')
+async def thread_clean(message):
+    if message.author.id != creds.adminID:
+        await message.channel.send(f"You don't have janitor clearance.")
+        return
+    
+    #source
+    request_channel = message.channel.id
+    target_cc = client.get_channel(request_channel)
+    for items in target_cc.threads:
+        await items.delete()
+    await message.delete()
+    await message.channel.send("Threads deleted.")
+    print(f'Cleaning up threads.')
+    return
+@command('admin-purge')
+async def hard_purge(message):
+    if message.author.id != creds.adminID:
+        await message.channel.send(f"Tsk tsk tsk you're not an admin.")
+        return
+    request_channel = message.channel.id
+    await client.get_channel(request_channel).purge()
+    print('Purged a batch of messages.')
+    return
+
 @command('shutdown')
 async def kill_it(message):
     if message.author.id == creds.adminID:
@@ -257,8 +290,13 @@ async def kill_it(message):
         print(f'Stop it {message.author}.')
         await message.channel.send(f'Stop it {message.author}')
 
-def run_bot():       
-    client.run(creds.myDiscordCreds)
+def run_bot(): 
+    try:
+        response = requests.get(API_ENDPOINT['api'])
+        client.run(creds.myDiscordCreds)
+    except Exception as e:
+        print(e , '\n')
+        print("Webserver is not active.")
 
 if __name__  ==  '__main__':
     run_bot()
