@@ -26,7 +26,7 @@ API_ENDPOINT = {
     'cleanup' : "http://localhost:5000/cleanup/"
         }
 ALLOWED_CHANNEL = [
-    1264315012877389975 , #test channel
+    1265781830683197501 , #test channel
     877784047722569728 # book club
 ]
 USER_ID = {'kkot' : 705999688893071430, 'jonathan': 137004891360067584}
