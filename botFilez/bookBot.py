@@ -3,11 +3,11 @@ import os
 import sys
 import json
 import time
-from bookFinder import driver_setup , login
-from searchResult import search_input , search_result_data
-from linkProcessing import download_attempt , auto_download
+from .bot_scripts.book_Bot_Init import driver_setup , login
+from .bot_scripts.book_Bot_Search import search_input , search_result_data
+from .bot_scripts.book_Bot_Download import download_attempt , auto_download
+from .bot_scripts.book_Bot_Limit_Check import max_limit
 from botCookies import cookie_epoch , load_cookies , save_cookies
-from limit_check import max_limit
 from discordCreds import desired_save_dir , siteURL
 '''
 Initializes our chrome webdriver to automate the download process 
