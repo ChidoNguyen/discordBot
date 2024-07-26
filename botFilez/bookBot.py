@@ -15,16 +15,27 @@ Initializes our chrome webdriver to automate the download process
 
 #!TODO : Splice into "search + results" and "download_choice"
 def automated_book_download():
-    #python script "book details" "settings"
+    #python script "book details" "requester_id"  "settings"
     #settings:
     # 1) listings -> gets a list of links we've acquired
     # 2) auto -> automate top link found download and delivery
     # 3) url -> download from provided URL
-    if len(sys.argv) != 3:
+    settings = ['url' , 'auto' , 'listings']
+    if len(sys.argv) != 4:
         print("Invalid amount of arguments provided.")
         sys.exit(1)
+    if sys.argv[-1] not in settings:
+        print("Invalid setting argument.")
+        sys.exit(1)
     desired_book = sys.argv[1]
-    chrome_Driver_Init= driver_setup()
+    requester_id = sys.argv[2]
+    #create new folder for user
+    user_folder = os.path.join(desired_save_dir, requester_id)
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+
+    ######
+    chrome_Driver_Init= driver_setup(user_folder)
     #cookies expiry check if its true ( still valid)
     #cookies and setup always needed for all options provided
     if cookie_epoch():
@@ -52,10 +63,10 @@ def automated_book_download():
     if sys.argv[-1] == 'url':
         searchResultData = [sys.argv[1]] # should be our URL
         chrome_Driver_Search = chrome_Driver_Login
-    chrome_Driver_Download_Process = download_attempt(chrome_Driver_Search , searchResultData)
+    chrome_Driver_Download_Process = download_attempt(chrome_Driver_Search , searchResultData , user_folder)
 
     chrome_Driver_Download_Process.close()
-    for items in os.listdir(desired_save_dir):
+    for items in os.listdir(user_folder):
         if items.endswith('.epub'):
             return sys.exit()
     return sys.exit(1)
@@ -63,7 +74,7 @@ if __name__ == "__main__":
     results = automated_book_download()
 
     if sys.argv[-1] == 'listings':
-        with open( os.path.join(desired_save_dir ,"output.txt") , 'w') as f:
+        with open( os.path.join(os.path.join(desired_save_dir, sys.argv[2]) ,"output.txt") , 'w') as f:
             for items in results:
                 print(items , file = f)
                 #print(items)

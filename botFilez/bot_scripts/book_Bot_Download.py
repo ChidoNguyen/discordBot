@@ -7,16 +7,16 @@ from selenium.common.exceptions import TimeoutException , NoSuchElementException
 
 import os
 import time
-from discordCreds import desired_save_dir
+#from discordCreds import desired_save_dir
 #url link input
 
-def download_attempt(driver,searchLinks):
+def download_attempt(driver,searchLinks,user_folder):
     for items in searchLinks:
         driver.get(items)
-        if auto_download(driver):
+        if auto_download(driver,user_folder):
             return driver
     return driver
-def auto_download(driver):
+def auto_download(driver,desired_save_dir):
     
     try:
         download_link = None

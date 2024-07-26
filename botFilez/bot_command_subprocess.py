@@ -12,12 +12,13 @@ API_END = { 'api' : "http://localhost:5000/" ,
             'cleanup' : "cleanup"
            }
 #search folder should only have 1 epub currently, grabs it and create file for discord bot to attach/upload
-def discord_file_creation():
+def discord_file_creation(user):
     myfile = None
-    for items in os.listdir(creds.desired_save_dir):
+    user_fold = os.path.join(creds.desired_save_dir, user)
+    for items in os.listdir(user_fold):
         if items.endswith('epub'):
             myfile = items
-    joined_path = os.path.join(creds.desired_save_dir , myfile)
+    joined_path = os.path.join(user_fold , myfile)
     with open(joined_path , 'rb') as discordFile:
         attached_file = discord.File(fp = discordFile , filename=myfile)
     return attached_file
@@ -28,32 +29,31 @@ def discord_file_creation():
 param search_str : parsed message user input for bot to search has the !command portion removed
 param requester : is a discord message object to identify user id/name
 '''
-def download_book(search_str , requester ):
+def download_book(search_str,requester ):
     #request book
     #make file
     #if successful send info back
     #else error messages
     data = {
         'book_info' : search_str,
-        'requester' : requester
+        'requester' : str(requester)
         }
     try:
         response = requests.post(API_END['api'] + API_END['download'] , json=data)
         if response.status_code == 200:
-            book_file = discord_file_creation()
+            book_file = discord_file_creation(str(requester))
             return book_file , f"{requester.mention}"
         elif response.status_code == 405:
             return f'Download limit reached. {requester.mention}'
         else:
             return f'Failed to get book : {search_str} {requester.mention}'
     except:
-        print(f'{response.text}')
         return f'Something went wrong. Try again later.'
     
 
 
 def search_results(search_str,requester,user_state):
-    data = {'book_info' : search_str}
+    data = {'book_info' : search_str , 'requester' : str(requester)}
     try:
         response = requests.post(API_END['api'] + API_END['listing'] , json=data)
     except:
@@ -76,10 +76,10 @@ def search_results(search_str,requester,user_state):
 
 def search_results_download(user_choice , requester , user_state):
     user_choice_url = user_state.book_options[user_choice]
-    data = {'book_info' : user_choice_url}
+    data = {'book_info' : user_choice_url , 'requester' : str(requester)}
     response = requests.post(API_END['api'] + API_END['pick'] , json=data)
     if response.status_code == 200:
-        file_obj = discord_file_creation()
+        file_obj = discord_file_creation(str(requester))
         return file_obj, f'{requester.mention}'
     elif response.status_code == 405:
         return f'Download limit reached. {requester.mention}'

@@ -131,7 +131,6 @@ def task_clear(state):
 @command('getbook')
 async def get_book(message):
     requester = message.author
-    
     parsed_msg = message.content.split() #split by white spaces
     search_string = ' '.join(parsed_msg[1:])
     reply_thread = await message.channel.create_thread(
@@ -139,6 +138,9 @@ async def get_book(message):
             message = message,
             auto_archive_duration = 60
         )
+    if len(parsed_msg) < 2:
+        await reply_thread.send("Missing book details.")
+        return
     #some message to let users know bot is doing something
     await reply_thread.send('\U0001F50E')
 
@@ -279,7 +281,7 @@ async def hard_purge(message):
         await message.channel.send(f"Tsk tsk tsk you're not an admin.")
         return
     request_channel = message.channel.id
-    await client.get_channel(request_channel).purge()
+    await client.get_channel(request_channel).purge(limit = 20)
     print('Purged a batch of messages.')
     return
 
@@ -294,7 +296,7 @@ async def kill_it(message):
 
 def run_bot(): 
     try:
-        response = requests.get(API_ENDPOINT['api'])
+        response = requests.get(API_ENDPOINT['api'] + "online")
         client.run(creds.myDiscordCreds)
     except Exception as e:
         print(e , '\n')
