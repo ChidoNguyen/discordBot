@@ -33,18 +33,23 @@ def download_book(search_str , requester ):
     #make file
     #if successful send info back
     #else error messages
-    data = {'book_info' : search_str}
+    data = {
+        'book_info' : search_str,
+        'requester' : requester
+        }
     try:
         response = requests.post(API_END['api'] + API_END['download'] , json=data)
+        if response.status_code == 200:
+            book_file = discord_file_creation()
+            return book_file , f"{requester.mention}"
+        elif response.status_code == 405:
+            return f'Download limit reached. {requester.mention}'
+        else:
+            return f'Failed to get book : {search_str} {requester.mention}'
     except:
         print(f'{response.text}')
-    if response.status_code == 200:
-        book_file = discord_file_creation()
-        return book_file , f"{requester.mention}"
-    elif response.status_code == 405:
-        return f'Download limit reached. {requester.mention}'
-    else:
-        return f'Failed to get book : {search_str} {requester.mention}'
+        return f'Something went wrong. Try again later.'
+    
 
 
 def search_results(search_str,requester,user_state):

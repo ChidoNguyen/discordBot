@@ -22,6 +22,7 @@ def online():
 @app.route('/search_download/', methods = ['POST'])
 def search_download():
     book_details = request.json['book_info']
+    book_requester = request.json['requester']
     result_queue = multiprocessing.Queue()
     process = multiprocessing.Process(target= sd_subprocess, args=(book_details,result_queue))
     process.start()

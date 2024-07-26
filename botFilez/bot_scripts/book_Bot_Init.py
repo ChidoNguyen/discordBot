@@ -13,10 +13,7 @@ from selenium.webdriver.chrome.service import Service
 
 import time
 import platform
-import linkProcessing as downProc
-from searchResult import search_input
 from discordCreds import siteURL , userID , userPASS , desired_save_dir
-from limit_check import download_history , limit_check
 ####setup######
 #initialize our chrome driver with preferences/options
 #?Params : None
@@ -27,7 +24,7 @@ def driver_setup():
     options = webdriver.ChromeOptions()
     #options.add_argument("--window-size=1920,1080")
     #options.add_argument("--start-maximized")
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     #options.add_argument('--disable-gpu')
     prefs = {
         "download.default_directory" : desired_save_dir ,
@@ -106,4 +103,4 @@ def login(driver):
 if __name__ == '__main__':
     mydrive = login(driver_setup())
     
-    limit_check(download_history(mydrive))
+    #limit_check(download_history(mydrive))

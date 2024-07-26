@@ -1,5 +1,5 @@
 import multiprocessing , subprocess
-from testbot import run_bot
+from botFilez.discordBot import run_bot
 from bookAPI import start_app
 
 

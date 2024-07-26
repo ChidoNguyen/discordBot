@@ -139,11 +139,13 @@ async def get_book(message):
             message = message,
             auto_archive_duration = 60
         )
-
+    #some message to let users know bot is doing something
     await reply_thread.send('\U0001F50E')
-    #hoping this unblocks the discord bot from timing out while waiting for it to finish
+
+    #future/exec helps prevent discord heartbeat timeout
     future = executor.submit(download_book,search_string,requester)
     result = await client.loop.run_in_executor(None , future.result)
+
     if isinstance(result , tuple):
         #make thread
         file_obj , msg = result

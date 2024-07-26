@@ -3,10 +3,10 @@ import os
 import sys
 import json
 import time
-from .bot_scripts.book_Bot_Init import driver_setup , login
-from .bot_scripts.book_Bot_Search import search_input , search_result_data
-from .bot_scripts.book_Bot_Download import download_attempt , auto_download
-from .bot_scripts.book_Bot_Limit_Check import max_limit
+from bot_scripts.book_Bot_Init import driver_setup , login
+from bot_scripts.book_Bot_Search import search_input , search_result_data
+from bot_scripts.book_Bot_Download import download_attempt , auto_download
+from bot_scripts.book_Bot_Limit_Check import max_limit
 from botCookies import cookie_epoch , load_cookies , save_cookies
 from discordCreds import desired_save_dir , siteURL
 '''
@@ -25,7 +25,6 @@ def automated_book_download():
         sys.exit(1)
     desired_book = sys.argv[1]
     chrome_Driver_Init= driver_setup()
-
     #cookies expiry check if its true ( still valid)
     #cookies and setup always needed for all options provided
     if cookie_epoch():
