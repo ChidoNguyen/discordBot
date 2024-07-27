@@ -1,17 +1,16 @@
-import multiprocessing , subprocess
-from botFilez.discordBot import run_bot
-from bookAPI import start_app
+
+import sys , os
 
 
-def main():
-    bot_process = multiprocessing.Process(target=run_bot)
-    api_process = multiprocessing.Process(target=start_app)
-    bot_process.start()
-    api_process.start()
-    bot_process.join()
-    api_process.terminate()
-    api_process.join()
-    return
+
+def test_pd():
+# Get the parent directory
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
+    # Add the parent directory to sys.path
+    print(os.pardir , '\n' , os.path.dirname(__file__))
+    sys.path.append(parent_dir)
+
 
 if __name__ == '__main__':
-   main()
+   test_pd()

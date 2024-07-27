@@ -13,6 +13,10 @@ from selenium.webdriver.chrome.service import Service
 
 import time
 import platform
+import os ,sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+sys.path.append(parent_dir)
 from discordCreds import siteURL , userID , userPASS
 ####setup######
 #initialize our chrome driver with preferences/options

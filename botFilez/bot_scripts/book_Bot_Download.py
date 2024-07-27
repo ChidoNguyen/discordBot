@@ -5,7 +5,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException , NoSuchElementException
 
-import os
+import os , sys
 import time
 #from discordCreds import desired_save_dir
 #url link input
@@ -19,8 +19,6 @@ def download_attempt(driver,searchLinks,user_folder):
 def auto_download(driver,desired_save_dir):
     
     try:
-        download_link = None
-        #this section is still fine since the download section is still viable 
         try:
             wait = WebDriverWait(driver,10)
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")))
@@ -66,7 +64,25 @@ def auto_download(driver,desired_save_dir):
     
     #TODO : MIGHT NEED TO EDIT IF OUR page which should be EPUB isnt first download choice
     
+def author_title_extract(driver):
+    #title located in HTML component <h1> with an itemprop attribute , value = 'name'
+    #author is located under <i> tag to italicize name
+    #author - class = color1 // title = "Find all the author's book"
+    try:
+        title_comp = driver.find_element(By.CSS_SELECTOR , "h1[itemprop='name']")
+        title_text = title_comp.text
+    except Exception as e:
+        print(e)
+        print("Error inside title extraction attempt.")
+    try:
+        author_comp = driver.find_element(By.CSS_SELECTOR , "a[class='color1'][title=\"Find all the author's book\"]")
+        author= author_comp.text
+    except Exception as e:
+        print(e)
+        print("Error inside author extraction.")
+    return author , title_text
 
-
-
+if __name__ == '__main__':
+    if sys.argv[-1] == 'title':
+        author_title_extract(sys.argv[-2])
 #new_button_edit()
