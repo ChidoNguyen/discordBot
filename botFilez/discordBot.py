@@ -157,7 +157,6 @@ async def get_book(message):
         # await message.channel.send(msg)
     else:
         await message.channel.send(result)
-    requests.get(API_ENDPOINT['cleanup'])
 
 @command('getbook-adv')
 async def getbook_adv(message):
@@ -239,7 +238,6 @@ async def pick_book(message):
             state.book_options = []
         else:
             await reply_thread.send(result)
-    requests.get(API_ENDPOINT['cleanup'])
 
 @command('cancel')
 async def cancel(message):

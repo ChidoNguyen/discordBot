@@ -15,15 +15,27 @@ API_END = { 'api' : "http://localhost:5000/" ,
 def discord_file_creation(user):
     myfile = None
     user_fold = os.path.join(creds.desired_save_dir, user)
-    for items in os.listdir(user_fold):
-        if items.endswith('epub'):
-            myfile = items
-    joined_path = os.path.join(user_fold , myfile)
-    with open(joined_path , 'rb') as discordFile:
+    #### intially get only epub now we get newest file
+    # for items in os.listdir(user_fold):
+    #     if items.endswith('epub'):
+    #         myfile = items
+######
+    dir_files = [os.path.join(user_fold,f) for f in os.listdir(user_fold)]
+    myfile = max(dir_files,key=os.path.getctime)
+    #joined_path = os.path.join(user_fold , myfile)
+    with open(myfile , 'rb') as discordFile:
         attached_file = discord.File(fp = discordFile , filename=myfile)
     return attached_file
 
+def initial_files(user):
+    user_folder = os.path.join(creds.desired_save_dir,user)
+    return os.listdir(user_folder)
 
+'''
+hanlding multiple epub:
+-Initial directory listing
+-compare to ending for new epub , or if item is crdownload
+'''
 #download_book for !getbook
 '''
 param search_str : parsed message user input for bot to search has the !command portion removed

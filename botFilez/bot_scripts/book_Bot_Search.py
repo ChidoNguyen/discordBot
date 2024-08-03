@@ -43,7 +43,6 @@ def search_result_data(driver):
     #truncate 10 results or if less take as is
     search_results = driver.find_elements(By.CLASS_NAME , 'resItemTable')
     search_results = search_results[:MAX_RESULT_COUNT] if len(search_results) > MAX_RESULT_COUNT else search_results #take top 10 res
-    print(len(search_results))
     '''
     Code :
     We take our top search reults top 10 or if less then all of them.
