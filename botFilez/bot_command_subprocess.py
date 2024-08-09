@@ -24,6 +24,7 @@ def discord_file_creation(user):
     myfile = max(dir_files,key=os.path.getctime)
     #joined_path = os.path.join(user_fold , myfile)
     with open(myfile , 'rb') as discordFile:
+        myfile = os.path.basename(myfile)
         attached_file = discord.File(fp = discordFile , filename=myfile)
     return attached_file
 
