@@ -42,10 +42,8 @@ def driver_setup(desired_save_dir):
         driver = webdriver.Chrome(options=options)
     #driver.set_window_rect(width=1200, height=900)
     ##############
-    print("uno")
     driver.get(siteURL) #fill with our url
     driver.implicitly_wait(10)
-    print("dos")
     try:
         assert "Z-Library" in driver.title
         return driver
