@@ -38,6 +38,7 @@ def command(name):
         commands[name] = func
         return func
     return decorator
+
 #user states
 user_states = {}
 class UserStates :
@@ -90,7 +91,29 @@ async def on_message(message):
     if requester not in user_states:
         user_states[requester] = UserStates()
     state = user_states[requester]
-
+    try:
+        if message.content.startswith(COMMAND_PREFIX):
+            # TODO: use a more clean approach via discord bot predicates
+            # flow check.... admin should be able to bypass all
+            #we get the message content ignoring the command prefix via len
+            #split it for spaces and grab first word in the split array via [0]
+            command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
+            command_function = commands.get(command_name)
+            if not command_function:
+                await message.channel.send(f"Command does not exist.")
+            elif command_name == 'admin':
+                await command_function(message)
+            else:
+                if isLocked(state):
+                    await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
+                    return
+                userLock(state)
+                await command_function(message)
+                userUnlock(state)
+    except discord.DiscordException as e:
+        print(f'Something went wrong error : {e}')
+        await message.channel.send(f'Something broke , abort mission.')
+    ''' 10/28/2024 working
     if message.content.startswith(COMMAND_PREFIX):
         if isLocked(state):
             await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
@@ -107,7 +130,7 @@ async def on_message(message):
         except discord.DiscordException as e:
             print(e)
         userUnlock(state)
-
+    '''
 
 
 help_commands = [
@@ -261,6 +284,9 @@ async def roll(message):
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
+@command('admin')
+async def admin_panel(message):
+    await message.channel.send(f'my brain hurts')
 @command('cleanup')
 async def thread_clean(message):
     if message.author.id != creds.adminID:
@@ -286,7 +312,7 @@ async def hard_purge(message):
     print('Purged a batch of messages.')
     return
 
-@command('shutdown')
+@command('admin-shutdown')
 async def kill_it(message):
     if message.author.id == creds.adminID:
         await message.channel.send("dead bot")
