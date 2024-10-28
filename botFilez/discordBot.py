@@ -81,8 +81,11 @@ async def on_message(message):
     #pretty much always needed to ignore the bot message itself#
     if message.author == client.user:
         return
-    #restrict channels
-
+    #restrict channels only listen for commands from designated channels
+    if message.channel.id not in ALLOWED_CHANNEL:
+        return
+    
+    #track tasks/requests from specific users
     requester = message.author
     if requester not in user_states:
         user_states[requester] = UserStates()
@@ -156,7 +159,7 @@ async def get_book(message):
         # await message.channel.send("File: ", file=file_obj)
         # await message.channel.send(msg)
     else:
-        await message.channel.send(result)
+        await reply_thread.send(result)
 
 @command('getbook-adv')
 async def getbook_adv(message):

@@ -8,14 +8,16 @@ from discordCreds import desired_save_dir
 from werkzeug.serving import make_server
 
 app = Flask(__name__)
-env_path = './myvenv/Scripts/python' if platform.system() == 'Windows' else "python3" #for windows VSC where env is preset in settings
+ENV_PATH = './myvenv/Scripts/python' if platform.system() == 'Windows' else "python3" #for windows VSC where env is preset in settings
 server = None
 #blocking fix?
+
 #separate the app route + the subprocess with a subprocess_func
 def sd_subprocess(book_details, book_requester , result_queue):
-    sub_com_args = [env_path , 'bookBot.py', book_details , book_requester , 'auto']
+    sub_com_args = [ENV_PATH , 'bookBot.py', book_details , book_requester , 'auto']
     outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
     result_queue.put(outcome.returncode)
+
 @app.route('/online' , methods = ['GET'])
 def online():
     return "Online" , 200
@@ -45,7 +47,7 @@ def search_download():
 def search_links():
     book_details = request.json['book_info']
     requester = request.json['requester']
-    sub_com_args = [env_path , 'bookBot.py', book_details, requester , 'listings']
+    sub_com_args = [ENV_PATH , 'bookBot.py', book_details, requester , 'listings']
     outcome = subprocess.run(sub_com_args, capture_output=True, text = True)
     #print(outcome.check_returncode, outcome.stdout, outcome.stderr)
 
@@ -86,7 +88,7 @@ def search_links():
 def download_url():
     url = request.json['book_info']
     requester = request.json['requester']
-    subproc_arg = [env_path , 'bookBot.py' , url , requester, 'url']
+    subproc_arg = [ENV_PATH , 'bookBot.py' , url , requester, 'url']
     outcome = subprocess.run(subproc_arg , capture_output=True, text=True)
     if outcome.returncode == 0:
         response = {
