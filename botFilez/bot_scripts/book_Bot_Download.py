@@ -33,18 +33,23 @@ def auto_download(driver,desired_save_dir):
         #this section is still fine since the download section is still viable 
         try:
             wait = WebDriverWait(driver,10)
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-primary.addDownloadedBook")))
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.btn.btn-default.addDownloadedBook")))
         except NoSuchElementException:
             print("Failed to find download element.")
         
         #need to click "..." next to the old download now button to go to drop down menu
-
+        try:
+            dl_button = driver.find_element(By.CSS_SELECTOR, 'a.btn.btn-default.addDownloadedBook')
+            dl_button.click()
+        except NoSuchElementException as e:
+            print(e)
+        '''
         try:
             dropDown = driver.find_element(By.CSS_SELECTOR, "button.btn.btn-primary.dropdown-toggle.dlDropdownBtn")
             dropDown.click()
         except NoSuchElementException as e:
             print(e)
-        
+        '''
     #driver too fast need to delay for li to show up
         # try:
         #     wait.until(EC.presence_of_element_located((By.XPATH, "//a[@class = 'addDownloadedBook']")))
@@ -55,15 +60,18 @@ def auto_download(driver,desired_save_dir):
         ############### extract list items
         #could grab book info prior to downloading
         #title/author to rename files w/o bloated text
+        
         try:
             book_name = driver.find_element(By.XPATH , '//h1[@itemprop = "name"]').text
             author_name = driver.find_element(By.XPATH, '//a[@class = "color1"][@title="Find all the author\'s book"]').text
             #rint(book_name,author_name)   
         except Exception as e:
             print(e)
+        '''
         dropDownMenuOptions = driver.find_elements(By.XPATH , "//a[contains(@class , 'addDownloadedBook')]")
         #assuming first choice matches the search result file type we want
         dropDownMenuOptions[1].click()
+        '''
         download_incomplete = True
         time.sleep(5)
         timeout_counter = 0

@@ -83,9 +83,12 @@ async def on_message(message):
     if message.author == client.user:
         return
     #restrict channels only listen for commands from designated channels
-    if message.channel.id not in ALLOWED_CHANNEL:
-        return
+    #if message.channel.id not in ALLOWED_CHANNEL:
+    #   return
+    #if pick need to verify thread is in allowed cc
     
+    if message.channel.id not in ALLOWED_CHANNEL and (not isinstance(message.channel,discord.Thread) or message.channel.parent_id not in ALLOWED_CHANNEL):
+        return
     #track tasks/requests from specific users
     requester = message.author
     if requester not in user_states:
@@ -99,9 +102,12 @@ async def on_message(message):
             #split it for spaces and grab first word in the split array via [0]
             command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
             command_function = commands.get(command_name)
+            print(f'{requester} : {command_name}')
             if not command_function:
                 await message.channel.send(f"Command does not exist.")
             elif command_name == 'admin':
+                await command_function(message)
+            elif command_name == 'cancel':
                 await command_function(message)
             else:
                 if isLocked(state):
@@ -195,13 +201,20 @@ async def getbook_adv(message):
     parse_message = message.content.split()
     search_string = ' '.join(parse_message[1:])
 
-    reply_thread = await message.channel.create_thread(
+    reply_thread = await message.create_thread(
         name =f'{message.author} book request thread.',
-        message = message,
+        #message = message, this is needed if we message.channel.create_thread 
+        # above creates thread in channel from message we pass
         auto_archive_duration = 60
     )
-    await reply_thread.send("Working on it.")
-
+    tmp = await reply_thread.send("Working on it.")
+    """ try:
+        print(type(message),type(reply_thread),message.thread.id)
+    except discord.ClientException as e:
+        print(e)
+    except discord.DiscordException as f:
+        print(f)
+    return """
     future = executor.submit(search_results,search_string,requester,state)
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
@@ -210,7 +223,7 @@ async def getbook_adv(message):
     await reply_thread.send(result)
 
 @command('pick')
-async def pick_book(message):
+async def pick_book(message):#
     error_msg = {
         'invalid' : 'Too many or not enough parameters were given.' ,
         'invalid_choice' : 'Invalid link choice.',
@@ -308,7 +321,7 @@ async def hard_purge(message):
         await message.channel.send(f"Tsk tsk tsk you're not an admin.")
         return
     request_channel = message.channel.id
-    await client.get_channel(request_channel).purge(limit = 20)
+    await client.get_channel(request_channel).purge(limit = 10)
     print('Purged a batch of messages.')
     return
 
