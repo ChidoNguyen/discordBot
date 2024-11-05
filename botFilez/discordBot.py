@@ -196,6 +196,9 @@ async def getbook_adv(message):
     requester = message.author
     #saving timestamp for future cleanup usage(?)
     state = user_states[requester]
+    if state.book_options:
+        await message.channel.send(f'You have a different request in progress. Either !pick in thread or !cancel. {requester.mention}')
+        return
     state.timestamp = datetime.datetime.now()
 
     parse_message = message.content.split()
@@ -281,8 +284,8 @@ async def pick_book(message):#
 @command('cancel')
 async def cancel(message):
     requester = message.author
-    if requester in user_states and user_states[requester].task:
-        user_states[requester].cancel_flag = True
+    #if requester in user_states and user_states[requester].task:
+    #    user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
 @command('roll')
 async def roll(message):
