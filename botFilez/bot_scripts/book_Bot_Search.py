@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-
+from discordCreds import siteURL
 
 MAX_RESULT_COUNT = 10
 # TODO : Implement bot interaction with script to get wanted book
@@ -41,7 +41,9 @@ def search_result_data(driver):
     #each item in search_results cooresponds to an instance of the book we're looking for
     #check english + epub
     #truncate 10 results or if less take as is
-    search_results = driver.find_elements(By.CLASS_NAME , 'resItemTable')
+    #changes to layout via html 10-28
+    #search_results = driver.find_elements(By.CLASS_NAME , 'resItemTable')
+    search_results = driver.find_elements(By.CLASS_NAME , "book-item")
     search_results = search_results[:MAX_RESULT_COUNT] if len(search_results) > MAX_RESULT_COUNT else search_results #take top 10 res
     '''
     Code :
@@ -55,7 +57,7 @@ def search_result_data(driver):
         XPATH we treat it more like a true bookDetails (parent) we can search By.XPATH if we say ./div (child div) [contains(@class , 'class_name')]
     '''
 
-
+    ''' MIGHT BE OBSOLETE 10/28/2024 different card/html structure
     TARGET_DIVS ={'eng' : "property_value text-capitalize" , 'epub' : "property_value" }
     valid_links = []
     for items in search_results:
@@ -73,6 +75,15 @@ def search_result_data(driver):
             if lang and fileType:
                 valid_links.append(items.find_element(By.TAG_NAME , 'a').get_attribute('href'))
                 break
-    
+    '''
+    #uses z-bookcard element now"
+    valid_links = []
+    for items in search_results:
+        bookdetails = items.find_element(By.TAG_NAME , 'z-bookcard')
+        lang = bookdetails.get_attribute('language').lower()
+        ext = bookdetails.get_attribute('extension').lower()
+        if lang == 'english' and ext == 'epub':
+            tmp = siteURL + bookdetails.get_attribute('href')[1:]
+            valid_links.append(tmp)
     #print(*valid_links , sep = '\n')
     return valid_links

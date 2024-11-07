@@ -38,6 +38,7 @@ def command(name):
         commands[name] = func
         return func
     return decorator
+
 #user states
 user_states = {}
 class UserStates :
@@ -81,13 +82,44 @@ async def on_message(message):
     #pretty much always needed to ignore the bot message itself#
     if message.author == client.user:
         return
-    #restrict channels
-
+    #restrict channels only listen for commands from designated channels
+    #if message.channel.id not in ALLOWED_CHANNEL:
+    #   return
+    #if pick need to verify thread is in allowed cc
+    
+    if message.channel.id not in ALLOWED_CHANNEL and (not isinstance(message.channel,discord.Thread) or message.channel.parent_id not in ALLOWED_CHANNEL):
+        return
+    #track tasks/requests from specific users
     requester = message.author
     if requester not in user_states:
         user_states[requester] = UserStates()
     state = user_states[requester]
-
+    try:
+        if message.content.startswith(COMMAND_PREFIX):
+            # TODO: use a more clean approach via discord bot predicates
+            # flow check.... admin should be able to bypass all
+            #we get the message content ignoring the command prefix via len
+            #split it for spaces and grab first word in the split array via [0]
+            command_name = message.content[len(COMMAND_PREFIX):].split()[0].lower()
+            command_function = commands.get(command_name)
+            print(f'{requester} : {command_name}')
+            if not command_function:
+                await message.channel.send(f"Command does not exist.")
+            elif command_name == 'admin':
+                await command_function(message)
+            elif command_name == 'cancel':
+                await command_function(message)
+            else:
+                if isLocked(state):
+                    await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
+                    return
+                userLock(state)
+                await command_function(message)
+                userUnlock(state)
+    except discord.DiscordException as e:
+        print(f'Something went wrong error : {e}')
+        await message.channel.send(f'Something broke , abort mission.')
+    ''' 10/28/2024 working
     if message.content.startswith(COMMAND_PREFIX):
         if isLocked(state):
             await message.channel.send(f'One request at a time you greedy goblin. {requester.mention}')
@@ -104,7 +136,7 @@ async def on_message(message):
         except discord.DiscordException as e:
             print(e)
         userUnlock(state)
-
+    '''
 
 
 help_commands = [
@@ -156,7 +188,7 @@ async def get_book(message):
         # await message.channel.send("File: ", file=file_obj)
         # await message.channel.send(msg)
     else:
-        await message.channel.send(result)
+        await reply_thread.send(result)
 
 @command('getbook-adv')
 async def getbook_adv(message):
@@ -164,18 +196,28 @@ async def getbook_adv(message):
     requester = message.author
     #saving timestamp for future cleanup usage(?)
     state = user_states[requester]
+    if state.book_options:
+        await message.channel.send(f'You have a different request in progress. Either !pick in thread or !cancel. {requester.mention}')
+        return
     state.timestamp = datetime.datetime.now()
 
     parse_message = message.content.split()
     search_string = ' '.join(parse_message[1:])
 
-    reply_thread = await message.channel.create_thread(
+    reply_thread = await message.create_thread(
         name =f'{message.author} book request thread.',
-        message = message,
+        #message = message, this is needed if we message.channel.create_thread 
+        # above creates thread in channel from message we pass
         auto_archive_duration = 60
     )
-    await reply_thread.send("Working on it.")
-
+    tmp = await reply_thread.send("Working on it.")
+    """ try:
+        print(type(message),type(reply_thread),message.thread.id)
+    except discord.ClientException as e:
+        print(e)
+    except discord.DiscordException as f:
+        print(f)
+    return """
     future = executor.submit(search_results,search_string,requester,state)
     state.task = await client.loop.run_in_executor(None, future.result)
     result = state.task
@@ -184,7 +226,7 @@ async def getbook_adv(message):
     await reply_thread.send(result)
 
 @command('pick')
-async def pick_book(message):
+async def pick_book(message):#
     error_msg = {
         'invalid' : 'Too many or not enough parameters were given.' ,
         'invalid_choice' : 'Invalid link choice.',
@@ -242,8 +284,13 @@ async def pick_book(message):
 @command('cancel')
 async def cancel(message):
     requester = message.author
-    if requester in user_states and user_states[requester].task:
-        user_states[requester].cancel_flag = True
+    try:
+        user_states[requester].locked = False
+        user_states[requester].book_options = []
+    except:
+        print(f'Failed to cancel and/or unlock userstates : {requester}')
+    #if requester in user_states and user_states[requester].task:
+    #    user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
 @command('roll')
 async def roll(message):
@@ -258,6 +305,9 @@ async def roll(message):
 @command('tellmeajoke')
 async def tell_joke(message):
     await message.channel.send(f"look in the mirror {message.author.mention}!")
+@command('admin')
+async def admin_panel(message):
+    await message.channel.send(f'my brain hurts')
 @command('cleanup')
 async def thread_clean(message):
     if message.author.id != creds.adminID:
@@ -279,11 +329,11 @@ async def hard_purge(message):
         await message.channel.send(f"Tsk tsk tsk you're not an admin.")
         return
     request_channel = message.channel.id
-    await client.get_channel(request_channel).purge(limit = 20)
+    await client.get_channel(request_channel).purge(limit = 10)
     print('Purged a batch of messages.')
     return
 
-@command('shutdown')
+@command('admin-shutdown')
 async def kill_it(message):
     if message.author.id == creds.adminID:
         await message.channel.send("dead bot")
