@@ -284,6 +284,11 @@ async def pick_book(message):#
 @command('cancel')
 async def cancel(message):
     requester = message.author
+    try:
+        user_states[requester].locked = False
+        user_states[requester].book_options = []
+    except:
+        print(f'Failed to cancel and/or unlock userstates : {requester}')
     #if requester in user_states and user_states[requester].task:
     #    user_states[requester].cancel_flag = True
     #await message.channel.send("Canned the current bot task.")
