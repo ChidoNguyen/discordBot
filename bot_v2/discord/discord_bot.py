@@ -77,7 +77,6 @@ async def help_msg(message):
     help_commands = [
         "- All bot commands should start with ! `!help` ",
         "- **help** : what you see is what you get",
-        "- **tellmeajoke** : its empty",
         "- **getbook** : enter book details after command in any order (author title) `!getbook author title`",
         "- **getbook-adv** : enter book details and get a list of links to pick from with `!pick` command" ,
         "- **pick** : enter number corresponding with link `!pick 3`"
@@ -107,7 +106,7 @@ async def get_book(message):
 async def get_book_adv(message):
     requester = message.author
     user = user_states[requester]
-    if user.pick_options:
+    if user.urls:
         await message.channel.send(f'Another getbook-adv request in progress. Either !pick or !cancel.')
         return
     search_string = ' '.join(message.content.split()[1:])
@@ -116,13 +115,56 @@ async def get_book_adv(message):
     )
     await reply_thread.send(f'Working on it.')
     # @TODO spin up script to do work and print list of url we get
-    print(type(reply_thread))
+    #if successful save the thread id to user
+    tmp_book_url = ['tmp']
+    thread_id = reply_thread.id
+    user.book_urls(tmp_book_url,thread_id)
+    print(type(reply_thread), reply_thread.id)
     return
 
 @command('pick')
 async def pick_url(message):
+    error_msg = {
+        'invalid' : 'Too many or not enough parameters were given.' ,
+        'invalid_choice' : 'Invalid link choice.',
+        'invalid_num' : 'Please enter a number.',
+        'task' : 'There is no book links attached to you. Run !getbook-adv.',
+        'thread' : 'Please !pick in original !getbook-adv request thread.'
+    }
+    #should only work if user has book urls in progress AND in same thread as the request
+    #some message scrubbing should be done
+    requester = message.author
+    user = user_states[requester]
+    msg_content = message.content.split()
+
+    def is_int(a):
+        try:
+            int(a)
+            return True
+        except:
+            return False
+        
+    if not user.urls: #no links
+        await message.channel.send(f'{error_msg['task']}')
+    if message.channel.id != user.pick_thread:
+        await message.channel.send(f'{error_msg['thread']}')
+    elif len(msg_content) != 2:
+        await message.channel.send(f'{error_msg['invalid']}')
+    elif not is_int(msg_content[1]):
+        await message.channel.send(f'{error_msg["invalid_num"]}')
+    #elif for later pick # is within # of url link options
+    else:
+        #if all error checks pass spin up script to get our book via specified pick url
+        print(message.channel.id)
     return
 
+@command('cancel')
+async def cancel(message):
+    requester = message.author
+    user = user_states[requester]
+    user.cancel()
+    if not user.urls and not user.pick_thread:
+        await message.channel.send(f'getbook-adv wiped.')
 
 
 def bot_start():
