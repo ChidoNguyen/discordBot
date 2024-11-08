@@ -4,3 +4,4 @@ myvenv
 *tmp.*
 *bot_cookies*
 *.DS_Store*
+*.ini*
