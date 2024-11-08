@@ -2,6 +2,7 @@ class UserStates :
     def __init__(self):
         self.task = None
         self.pick_options = []
+        self.pick_thread = None
         self.locked = False
     
     def isLocked(self):
