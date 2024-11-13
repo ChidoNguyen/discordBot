@@ -1,8 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-import platform , configparser , time
+import platform , configparser , time , os
 import bot_site_cookies
+from book_bot_config import download_dir
+
+#make def. saved folder for user 
+def create_user_save_dir(requester):
+    user_folder = os.path.join(download_dir, requester)
+    if not os.path.exist(user_folder):
+        os.makedirs(user_folder)
+    return user_folder
 
 def auto_bot_driver(save_dir):
     #chrome driver options
@@ -72,10 +80,10 @@ def login_creds_input(bot_driver):
         print("login attempt failed")
         return None
 
-def test_auto_bot():
-    return
 
-def auto_bot(save_dir):
+
+def auto_bot(requester):
+    save_dir = create_user_save_dir(requester)
     ab_driver = auto_bot_driver(save_dir) #setup our initial webdriver client
     homepage_driver = login_element_driver = logged_in_driver = None
     if ab_driver:
