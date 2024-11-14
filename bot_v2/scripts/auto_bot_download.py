@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException , TimeoutException
 import os, time, re
 
 #rawest form of "download"
@@ -46,7 +46,9 @@ def download_attempt(bot_webdriver, link_url, user_folder):
     except NoSuchElementException as e:
         print(f'Error clicking the download link and button. {e}')
         return None
-    
+    except TimeoutException as e:
+        print(f'Timeout error trying to locate download button. {e}')
+        return None
 
     #extract authoer title for file renaming
 
