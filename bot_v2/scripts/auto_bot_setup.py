@@ -8,7 +8,7 @@ from book_bot_config import download_dir
 #make def. saved folder for user 
 def create_user_save_dir(requester):
     user_folder = os.path.join(download_dir, requester)
-    if not os.path.exist(user_folder):
+    if not os.path.exists(user_folder):
         os.makedirs(user_folder)
     return user_folder
 

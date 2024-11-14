@@ -10,7 +10,7 @@ BOT_SETTINGS = ['getbook', 'getbook-adv', 'pick']
 
 def book_bot():
     if len(sys.argv) != 4:
-        print(f'Invalid number of arguments. Expected 4 , only got {len(sys.argv)}.')
+        print(f'Invalid number of arguments. Expected: 4, Received: {len(sys.argv)}.')
         sys.exit(1)
     if sys.argv[-1] not in BOT_SETTINGS:
         print(f'Invalid setting argument used.')
@@ -70,3 +70,5 @@ def book_bot():
         return True
     return None
 
+if __name__ == '__main__':
+    book_bot()

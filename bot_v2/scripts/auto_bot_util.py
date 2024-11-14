@@ -27,4 +27,7 @@ def check_download_limit(bot_webdriver):
     return False
 
 def max_limit(bot_webdriver):
-    return check_download_limit(navigate_download_history(bot_webdriver))
+    homepage_url = bot_webdriver.current_url
+    down_limit = check_download_limit(navigate_download_history(bot_webdriver))
+    bot_webdriver.get(homepage_url)
+    return down_limit

@@ -60,7 +60,7 @@ def download_attempt(bot_webdriver, link_url, user_folder):
 
     #download complete check
 
-    if download_progress:
+    if download_progress(user_folder):
         if rename_book_file(book_name,author_name,user_folder):
             return bot_webdriver
     return None

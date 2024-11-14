@@ -33,7 +33,7 @@ def search_query_input(bot_webdriver, search_query):
     return bot_webdriver
 
 def search_result(bot_webdriver):
-    book_details = {
+    book_deets = {
         'book_card' : 'z-bookcard',
 
     }
@@ -41,19 +41,17 @@ def search_result(bot_webdriver):
     #truncate our results to 10 results max
     if len(search_results) > MAX_RESULTS:
         search_results = search_results[:MAX_RESULTS]
-    
     valid_links = []
     try:
         for items in search_results:
-            book_details = items.find_element(By.TAG_NAME, book_details['book_card'])
+            book_details = items.find_element(By.TAG_NAME, book_deets['book_card'])
             bd_lang = book_details.get_attribute('language').lower()
             bd_extension = book_details.get_attribute('extension').lower()
-
             if bd_lang == 'english' and bd_extension == 'epub' :
                 full_link_path = site_url + book_details.get_attribute('href')[1:] # removing starting / from href
                 valid_links.append(full_link_path)
     except Exception as e:
-        print(f'Error: {e} \n Book search link extraction failed.')
+        print(f'Error: {e} \nBook search link extraction failed.')
         return None
     
     return bot_webdriver , valid_links
