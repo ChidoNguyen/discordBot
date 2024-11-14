@@ -84,6 +84,7 @@ def login_creds_input(bot_driver):
 
 def auto_bot(requester):
     save_dir = create_user_save_dir(requester)
+
     ab_driver = auto_bot_driver(save_dir) #setup our initial webdriver client
     homepage_driver = login_element_driver = logged_in_driver = None
     if ab_driver:
@@ -92,14 +93,12 @@ def auto_bot(requester):
     #cookies check to see if login is needed
     if bot_site_cookies.valid_cookies():
         bot_site_cookies.load_cookies(homepage_driver)
-        return homepage_driver
+        return homepage_driver, save_dir
     else:
         if homepage_driver:
             login_element_driver = login_page(homepage_driver)
         if login_element_driver:
             logged_in_driver = login_creds_input(login_element_driver)
         bot_site_cookies.save_cookies(logged_in_driver)
-        return logged_in_driver
+        return logged_in_driver, save_dir
 
-
-auto_bot('./cookies')
