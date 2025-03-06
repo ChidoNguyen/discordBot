@@ -27,16 +27,6 @@ def book_bot():
         print(f'Download limit reached.')
         sys.exit(10)
 
-    '''
-    Search
-    DL
-    ---
-    Search
-    return search result
-    ---
-    pick from search results
-    '''
-    #if
     outcome = None
     if auto_bot_setting != 'pick':
         bot_search_results = bot_search(bot_driver, book_search_string) # tuple (driver,list of links)
